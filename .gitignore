@@ -1,0 +1,39 @@
+# 패키지 의존성 폴더/파일
+/node_modules
+/.pnp
+.pnp.js
+
+# 테스트 커버리지 리포트
+/coverage
+
+# 프로덕션 빌드 파일
+/build
+/dist
+
+# 환경변수 파일
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# VS Code 설정 (extensions.json와 settings.json 제외)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+
+# MacOS 시스템 파일
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# 로그 파일
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 기타 임시/시스템 파일
+*.log
+*.swp
+.DS_Store
