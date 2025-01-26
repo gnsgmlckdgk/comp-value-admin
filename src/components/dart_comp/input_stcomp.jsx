@@ -1,5 +1,13 @@
 import styled from 'styled-components';
 
+const Container = styled.div`
+ max-width: 600px;
+ margin: 40px auto;
+ padding: 20px;
+ box-shadow: 0 0 20px rgba(0,0,0,0.1);
+ border-radius: 8px;
+`;
+
 const Form = styled.form`
   max-width: 1200px;
   margin: 0 auto;
@@ -29,6 +37,13 @@ const Button = styled.button`
  }
 `;
 
+const H1 = styled.form`
+  font-weight: bolder;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 20px;
+  text-align: center;
+`;
+
 const ResultMessage = styled.div`
  margin-top: 20px;
  padding: 15px;
@@ -46,4 +61,4 @@ const StrongText = styled.span`
  }
 `;
 
-export { Form, Input, Button, ResultMessage, StrongText }
+export { Container, Form, Input, Button, H1, ResultMessage, StrongText }

@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import axios from 'axios';  // npm install axios
 
+import * as comComp from '../common'
+
+
 // styled-components
 // import { Form, Input, Button } from './input_style'
 import * as comp from './input_stcomp'
 
 
 const InputForm = () => {
+
+    const [isLoading, setIsLoading] = useState(false);
 
     // <input onChange={(e) => setName(e.target.value)} />
     const [companyName, setCompanyName] = useState('삼성전자');
@@ -66,6 +71,7 @@ const InputForm = () => {
             // .then(response => {})
             // .catch(error => {}); // POST Promise 기반 Sample(.then을 통해서 응답받음, 전송 후 안기다리고 아래코드 바로 실행됨)
 
+            setIsLoading(true);
             const response = await axios.get(sendUrl, {
                 params: {
                     corp_name: companyName,
@@ -106,34 +112,46 @@ const InputForm = () => {
         } catch (error) {
             console.error(error);
         }
+        setIsLoading(false);
     };
 
     return (
         <>
-            <comp.Form onSubmit={handleSubmit}>
-                <div className="input-group">
-                    <comp.Input type="text" className="input" placeholder="기업명"
-                        value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
-                </div>
-                <div className="input-group">
-                    <comp.Input type="text" className="input" placeholder="기업코드"
-                        value={code} onChange={(e) => setCode(e.target.value)} />
-                </div>
-                <div className="input-group">
-                    <comp.Input type="text" className="input" placeholder="기준연도"
-                        value={date} onChange={(e) => setDate(e.target.value)} />
-                </div>
-                <comp.Button className="btn" onClick={handleSubmit}>검색</comp.Button>
-            </comp.Form>
-            <comp.ResultMessage className="result">
-                <p>결과메시지: <span>{result.결과메시지}</span></p>
-                <p>기업명: <span>{result.기업명}</span></p>
-                <p>기업코드: <span>{result.기업코드}</span></p>
-                <p>주식코드: <span>{result.주식코드}</span></p>
-                <p>주당가치: <comp.StrongText>{result.주당가치}</comp.StrongText></p>
-                <p>현재가격: <comp.StrongText>{result.현재가격}</comp.StrongText></p>
-                <p>확인시간: <span>{result.확인시간}</span></p>
-            </comp.ResultMessage>
+            <comp.Container>
+
+                <comp.H1>기업 1주 가치 계산</comp.H1>
+
+                <comp.Form onSubmit={handleSubmit}>
+                    <div className="input-group">
+                        <comp.Input type="text" className="input" placeholder="기업명"
+                            value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
+                    </div>
+                    <div className="input-group">
+                        <comp.Input type="text" className="input" placeholder="기업코드"
+                            value={code} onChange={(e) => setCode(e.target.value)} />
+                    </div>
+                    <div className="input-group">
+                        <comp.Input type="text" className="input" placeholder="기준연도"
+                            value={date} onChange={(e) => setDate(e.target.value)} />
+                    </div>
+                    <comp.Button className="btn" onClick={handleSubmit}>검색</comp.Button>
+                </comp.Form>
+                <comp.ResultMessage className="result">
+                    <p>결과메시지: <span>{result.결과메시지}</span></p>
+                    <p>기업명: <span>{result.기업명}</span></p>
+                    <p>기업코드: <span>{result.기업코드}</span></p>
+                    <p>주식코드: <span>{result.주식코드}</span></p>
+                    <p>주당가치: <comp.StrongText>{result.주당가치}</comp.StrongText></p>
+                    <p>현재가격: <comp.StrongText>{result.현재가격}</comp.StrongText></p>
+                    <p>확인시간: <span>{result.확인시간}</span></p>
+                </comp.ResultMessage>
+
+                {isLoading && (
+                    <comComp.LoadingOverlay>
+                        <comComp.Spinner />
+                    </comComp.LoadingOverlay>
+                )}
+            </comp.Container>
         </>
     );
 }
