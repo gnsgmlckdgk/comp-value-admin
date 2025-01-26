@@ -3,10 +3,12 @@ import axios from 'axios';  // npm install axios
 
 import * as comComp from '../common'
 
-
-// styled-components
+// 스타일컴포넌트(styled-components)
 // import { Form, Input, Button } from './input_style'
-import * as comp from './input_stcomp'
+import * as comp from './style/input_stcomp'
+
+// 데이터
+import dart_data from './data/open_dart'
 
 
 const InputForm = () => {
@@ -14,62 +16,18 @@ const InputForm = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     // <input onChange={(e) => setName(e.target.value)} />
+    const [pageTitle, setPageTitle] = useState('기업 한 주당 적정가격 계산 프로그램');
     const [companyName, setCompanyName] = useState('삼성전자');
     const [code, setCode] = useState('');
     const [date, setDate] = useState('2025');
 
-    // <div> {result && <p>결과: {result}</p>} </div>
-    const [result, setResult] = useState({
-        "결과메시지": "",
-        "기업코드": "",
-        "기업명": "",
-        "주식코드": "",
-        "주당가치": "",
-        "현재가격": "",
-        "확인시간": "",
-        "상세정보": {
-            "단위": "",
-            "영업이익_전전기": "",
-            "영업이익_전기": "",
-            "영업이익_당기": "",
-            "영업이익_합계": "",
-            "영업이익_평균": "",
-            "유동자산합계": "",
-            "유동부채합계": "",
-            "유동비율": "",
-            "투자자산_비유동자산내": "",
-            "고정부채": "",
-            "발행주식수": "",
-            "계산_사업가치": "",
-            "계산_재산가치": "",
-            "계산_부채": "",
-            "계산_기업가치": ""
-        }
-    });
+    const [result, setResult] = useState(dart_data);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             let sendUrl = "http://localhost:18080/dart/main/cal/per_value";
             console.log("sendUrl", sendUrl);
-
-            // const response = await axios.get(sendUrl, {
-            //     params: {
-            //         companyName: companyName,
-            //         code: code,
-            //         date: date
-            //     }
-            // }); // GET Sample
-
-            // const response = await axios.post('sendUrl', {
-            //     companyName: companyName,
-            //     code: code,
-            //     date: date
-            // }); // POST Sample (async/await, 응답 받을 수 있음)
-
-            // axios.post('/api', data)
-            // .then(response => {})
-            // .catch(error => {}); // POST Promise 기반 Sample(.then을 통해서 응답받음, 전송 후 안기다리고 아래코드 바로 실행됨)
 
             setIsLoading(true);
             const response = await axios.get(sendUrl, {
@@ -119,7 +77,7 @@ const InputForm = () => {
         <>
             <comp.Container>
 
-                <comp.H1>기업 1주 가치 계산</comp.H1>
+                <comp.H1>{pageTitle}</comp.H1>
 
                 <comp.Form onSubmit={handleSubmit}>
                     <div className="input-group">

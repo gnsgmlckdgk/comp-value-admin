@@ -1,5 +1,5 @@
-export { LoadingOverlay, Spinner } from './LodingOverlay';
+// 스타일
+export { LoadingOverlay, Spinner } from './style/loadingOverlay_stcomp';
 
-export { default as Header } from './Header';
-// export { default as Footer } from './Footer';
-// export { default as Sidebar } from './Sidebar';
+// 컴포넌트
+// export { default as Header } from '';
