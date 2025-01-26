@@ -17,12 +17,16 @@
     "axios": "^1.7.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-scripts": "^5.0.1"
+    "react-scripts": "^5.0.1",
+    "styled-component": "^2.8.0",
+    "styled-components": "^6.1.14"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@babel/preset-react": "^7.26.3",
     "babel-loader": "^9.2.1",
+    "css-loader": "^7.1.2",
+    "style-loader": "^4.0.0",
     "webpack": "^5.97.1",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.0"

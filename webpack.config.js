@@ -4,12 +4,12 @@ module.exports = {
     entry: './src/index.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
+        filename: 'bundle.js',
     },
     module: {
         rules: [
             {
-                test: /\.jsx?$/,
+                test: /\.(js|jsx)$/,
                 exclude: /node_modules/,
                 use: {
                     loader: 'babel-loader'
@@ -19,10 +19,5 @@ module.exports = {
     },
     resolve: {
         extensions: ['.js', '.jsx']
-    },
-    devServer: {
-        static: {
-            directory: path.join(__dirname, 'public')
-        }
     }
 };
