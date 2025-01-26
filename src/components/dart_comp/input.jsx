@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';  // npm install axios
 
+
+// 컴포넌트
 import * as comComp from '../common'
+import DetailsToggle from './detail_comp'
 
 // 스타일컴포넌트(styled-components)
 // import { Form, Input, Button } from './input_style'
@@ -11,17 +14,43 @@ import * as comp from './style/input_stcomp'
 import dart_data from './data/open_dart'
 
 
+/**
+ * 상세정보 세팅
+ * @param {obj} result 
+ * @returns 
+ */
+const setDetailData = (result) => {
+
+    const detailsData = result.상세정보;
+    let detailsDataArr = [];
+
+    if (detailsData) {
+        for (let key in detailsData) {
+            const data = detailsData[key];
+            detailsDataArr.push({
+                id: key,
+                title: key,
+                content: data
+            });
+        }
+    }
+
+    return detailsDataArr;
+}
+
+
 const InputForm = () => {
 
     const [isLoading, setIsLoading] = useState(false);
 
     // <input onChange={(e) => setName(e.target.value)} />
-    const [pageTitle, setPageTitle] = useState('기업 한 주당 적정가격 계산 프로그램');
+    const [pageTitle, setPageTitle] = useState('한 주당 적정가격 계산 프로그램');
     const [companyName, setCompanyName] = useState('삼성전자');
     const [code, setCode] = useState('');
     const [date, setDate] = useState('2025');
 
     const [result, setResult] = useState(dart_data);
+    const [details, setDetails] = useState([]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -40,6 +69,8 @@ const InputForm = () => {
                 .then(response => {
                     console.log("response", response);
                     setResult(response.data);
+                    setDetails(setDetailData(response.data));
+
                 })
                 .catch(error => {
                     // 서버 응답이 있는 경우
@@ -95,13 +126,39 @@ const InputForm = () => {
                     <comp.Button className="btn" onClick={handleSubmit}>검색</comp.Button>
                 </comp.Form>
                 <comp.ResultMessage className="result">
-                    <p>결과메시지: <span>{result.결과메시지}</span></p>
-                    <p>기업명: <span>{result.기업명}</span></p>
-                    <p>기업코드: <span>{result.기업코드}</span></p>
-                    <p>주식코드: <span>{result.주식코드}</span></p>
-                    <p>주당가치: <comp.StrongText>{result.주당가치}</comp.StrongText></p>
-                    <p>현재가격: <comp.StrongText>{result.현재가격}</comp.StrongText></p>
-                    <p>확인시간: <span>{result.확인시간}</span></p>
+                    <comp.resultMessageLi>
+                        <comp.resultSpan>결과메시지</comp.resultSpan>
+                        <comp.resultSpan2>{result.결과메시지}</comp.resultSpan2>
+                    </comp.resultMessageLi>
+                    <comp.resultMessageLi>
+                        <comp.resultSpan>기업명</comp.resultSpan>
+                        <comp.resultSpan2>{result.기업명}</comp.resultSpan2>
+                    </comp.resultMessageLi>
+                    <comp.resultMessageLi>
+                        <comp.resultSpan>기업코드</comp.resultSpan>
+                        <comp.resultSpan2>{result.기업코드}</comp.resultSpan2>
+                    </comp.resultMessageLi>
+                    <comp.resultMessageLi>
+                        <comp.resultSpan>주식코드</comp.resultSpan>
+                        <comp.resultSpan2>{result.주식코드}</comp.resultSpan2>
+                    </comp.resultMessageLi>
+                    <comp.resultMessageLi>
+                        <comp.resultSpan>주당가치</comp.resultSpan>
+                        <comp.resultSpan2> {Number(result.주당가치) > Number(result.현재가격) ?
+                            <comp.StrongTextRed>{result.주당가치 !== "" ? Number(result.주당가치).toLocaleString() : ""}</comp.StrongTextRed> :
+                            <comp.StrongText>{result.주당가치 !== "" ? Number(result.주당가치).toLocaleString() : ""}</comp.StrongText>}</comp.resultSpan2>
+                    </comp.resultMessageLi>
+                    <comp.resultMessageLi>
+                        <comp.resultSpan>현재가격</comp.resultSpan>
+                        <comp.resultSpan2><comp.StrongText>{result.현재가격 !== "" ? Number(result.현재가격).toLocaleString() : ""}</comp.StrongText></comp.resultSpan2>
+                    </comp.resultMessageLi>
+                    <comp.resultMessageLi>
+                        <comp.resultSpan>확인시간</comp.resultSpan>
+                        <comp.resultSpan2>{result.확인시간}</comp.resultSpan2>
+                    </comp.resultMessageLi>
+
+                    {/* containerStyle 로 스타일 정보를 넘길 수 있음 */}
+                    <DetailsToggle details={details} containerStyle={{ marginTop: '10px' }} />
                 </comp.ResultMessage>
 
                 {isLoading && (

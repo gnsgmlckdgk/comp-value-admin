@@ -52,13 +52,46 @@ const ResultMessage = styled.div`
  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 `;
 
+const resultMessageLi = styled.div`
+  margin-top: 8px;
+  padding: 16px;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  text-align: left;
+  color: #6b7280;
+`;
+
+const resultSpan = styled.span`
+  display: inline-block;
+  min-width: 150px;
+`;
+const resultSpan2 = styled.span`
+  display: inline-block;
+  min-width: 150px;
+  color: #000000;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+`;
+
+
 const StrongText = styled.span`
   font-weight: bolder;
+  font-size: 150%;
   cursor: pointer;
   &:hover {
-   color:rgb(38, 28, 224);
+   font-size: 200%;
+ }
+`;
+const StrongTextRed = styled.span`
+  font-weight: bolder;
+  font-size: 150%;
+  color: red;
+  cursor: pointer;
+  &:hover {
+   color: rgb(255, 100, 100);
    font-size: 200%;
  }
 `;
 
-export { Container, Form, Input, Button, H1, ResultMessage, StrongText }
+export { Container, Form, Input, Button, H1, ResultMessage, resultMessageLi, resultSpan, resultSpan2, StrongText, StrongTextRed }

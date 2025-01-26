@@ -15,6 +15,7 @@
   "dependencies": {
     "@babel/preset-env": "^7.26.0",
     "axios": "^1.7.9",
+    "lucide-react": "^0.474.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^6.28.2",

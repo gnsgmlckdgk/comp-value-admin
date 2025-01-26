@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Sidebar = styled.nav`
@@ -12,9 +13,8 @@ function SidebarLayout() {
         <>
             <Sidebar>
                 <ul>
-                    <li>Menu 1</li>
-                    <li>Menu 2</li>
-                    <li>Menu 3</li>
+                    <li><Link to="/">HOME</Link></li>
+                    <li><Link to="/cal/compvalue">기업가치계산</Link></li>
                 </ul>
             </Sidebar>
         </>

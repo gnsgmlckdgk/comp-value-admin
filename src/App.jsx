@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 
+
 const Container = styled.div`
     display: grid;
     grid-template-areas:
@@ -23,20 +24,14 @@ import * as dart_comp from './components/dart_comp'
 function App() {
 
     return (
-        // TODO: 실무에서 라우트로 많이하는지 확인
-        // TODO: 실제 서버에 올리는 방법(웹서버 설정 등) 확인
-        // TODO: 3000포트가 아니라 8080인데 디폴트가 변경됬는지
-        // TODO: 콘솔 경고문구 확인
         <>
             <Container>
                 <Header />
                 <Sidebar />
                 <Contents>
-                    <Link to="/">HOME</Link><br />
-                    <Link to="/cal">TEST</Link>
                     <Routes>
                         <Route path='/' element={<div><h1>Home</h1></div>} />
-                        <Route path='/cal' element={<dart_comp.InputForm />} />
+                        <Route path='/cal/compvalue' element={<dart_comp.InputForm />} />
                     </Routes>
                 </Contents>
                 <Footer />
