@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react'; // 화살표 아이콘을 위한 라이브러리
 
 /**
  * 상세 정보를 토글할 수 있는 컴포넌트

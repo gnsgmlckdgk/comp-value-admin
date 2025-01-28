@@ -3,11 +3,11 @@ import axios from 'axios';  // npm install axios
 
 // 컴포넌트
 import LoadingOverlayComp from '../../components/common/LoadingOverlay'
-import DetailsToggle from './detail_comp'
+import DetailsToggle from './DetailCompValue'
 
 // 스타일컴포넌트(styled-components)
 // import { Form, Input, Button } from './input_style'
-import * as comp from './style/compValueStyle'
+import * as comp from './style/CompValueStyle'
 
 // 데이터
 import dart_data from './data/open_dart'
@@ -54,7 +54,6 @@ const CompValue = () => {
         e.preventDefault();
         try {
             let sendUrl = "http://localhost:18080/dart/main/cal/per_value";
-            console.log("sendUrl", sendUrl);
 
             setIsLoading(true);
             const response = await axios.get(sendUrl, {
@@ -65,7 +64,6 @@ const CompValue = () => {
                 }
             })
                 .then(response => {
-                    console.log("response", response);
                     setResult(response.data);
                     setDetails(setDetailData(response.data));
 
