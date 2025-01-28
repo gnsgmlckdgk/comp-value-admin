@@ -7,7 +7,7 @@ import DetailsToggle from './detail_comp'
 
 // 스타일컴포넌트(styled-components)
 // import { Form, Input, Button } from './input_style'
-import * as comp from './style/input_stcomp'
+import * as comp from './style/compValueStyle'
 
 // 데이터
 import dart_data from './data/open_dart'

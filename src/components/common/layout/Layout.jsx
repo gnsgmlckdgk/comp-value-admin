@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import Header from './Header';
 import Footer from './Footer';
@@ -45,6 +46,9 @@ function Layout({ children }) {
   const [isOpen, setIsOpen] = useState(false);  // Hover로 열림/닫힘
   const [isLocked, setIsLocked] = useState(false); // Lock 버튼
 
+  const location = useLocation();
+  const pathName = location.pathname;
+
   // 실제 열림 여부: (Hover로 열렸거나) or (Locked)
   const actualOpen = isOpen || isLocked;
 
@@ -78,7 +82,9 @@ function Layout({ children }) {
 
   return (
     <OuterContainer>
-      <Header />
+      <Header
+        pathName={pathName}
+      />
 
       <BodyContainer>
         {!actualOpen && (
@@ -92,14 +98,11 @@ function Layout({ children }) {
           onMouseEnter={handleTriggerEnter}
           onMouseLeave={handleSidebarLeave}
           onLockToggle={handleLockToggle}
+          pathName={pathName}
         />
 
         {/* 메인 콘텐츠 */}
         <MainContent>
-          <h1>메인 콘텐츠</h1>
-          <p>1) 닫히면 0px, 완전히 안보임</p>
-          <p>2) Hover 시 오버레이 열림(콘텐츠 안 밀림)</p>
-          <p>3) Lock 시 푸시 모드(콘텐츠 오른쪽으로 밀림)</p>
           {children}
         </MainContent>
       </BodyContainer>

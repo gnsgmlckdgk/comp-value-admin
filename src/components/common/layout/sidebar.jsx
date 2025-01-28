@@ -14,12 +14,12 @@ const SidebarContainer = styled.div`
   transition: width 0.3s ease-in-out;
   overflow: hidden;
 
-  ${({ isLocked, isOpen }) =>
-    isLocked
+  ${({ $isLocked, $isOpen }) =>
+    $isLocked
       ? css`
           /* 푸시 모드: flex item */
           position: relative;
-          width: ${isOpen ? '240px' : '0px'};
+          width: ${$isOpen ? '240px' : '0px'};
         `
       : css`
           /* 오버레이 모드: absolute
@@ -28,7 +28,7 @@ const SidebarContainer = styled.div`
           position: absolute;
           top: 0;
           left: 0;
-          width: ${isOpen ? '240px' : '0px'};
+          width: ${$isOpen ? '240px' : '0px'};
         `}
 `;
 
@@ -96,15 +96,19 @@ function Sidebar({
   isLocked,
   onMouseEnter,
   onMouseLeave,
-  onLockToggle
+  onLockToggle,
+  pathName
 }) {
+
+  const sel = 'selected';
+
   // 열려 있거나 잠긴 상태이면 내부 컨텐츠 표시
   const showContent = isOpen || isLocked;
 
   return (
     <SidebarContainer
-      isLocked={isLocked}
-      isOpen={isOpen}
+      $isLocked={isLocked}
+      $isOpen={isOpen}
       onMouseEnter={onMouseEnter}  // 오버레이 모드에서 호버 시 열림
       onMouseLeave={onMouseLeave}  // 오버레이 모드에서 떠나면 닫힘
     >
@@ -121,13 +125,13 @@ function Sidebar({
           <h2>My Sidebar</h2>
           <MenuList>
             <MenuItem>
-              <StyledNavLink to="/" end className={({ isActive }) => (isActive ? 'selected' : '')}>
+              <StyledNavLink to="/" end className={pathName === '/' ? sel : ''}>
                 HOME
               </StyledNavLink>
             </MenuItem>
             <MenuItem>
-              <StyledNavLink to="/cal/compvalue" className={({ isActive }) => (isActive ? 'selected' : '')}>
-                계산
+              <StyledNavLink to="/cal/compvalue" className={pathName === '/cal/compvalue' ? sel : ''}>
+                기업가치
               </StyledNavLink>
             </MenuItem>
             {/* etc */}

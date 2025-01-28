@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
 /* 헤더 컨테이너(고정) */
@@ -33,24 +34,36 @@ const HeaderNav = styled.nav`
   flex-wrap: wrap; // 화면 폭이 좁아지면 아래 줄로 넘어가게
 `;
 
-const NavLink = styled.a`
+// router-dom의 NavLink를 styled-components로 감싸기
+const StyledNavLink = styled(NavLink)`
   color: #fff;
   text-decoration: none;
   font-size: 0.9rem;
 
   &:hover {
+    cursor: pointer;
     text-decoration: underline;
   }
+
+  &.selected {
+    font-weight: bold;
+    color: #FFD700; /* Gold */
+
+  }
+
 `;
 
-const Header = () => {
+
+const Header = ({ pathName }) => {
+
+  const sel = 'selected';
+
   return (
     <HeaderContainer>
       <Logo>My Website</Logo>
       <HeaderNav>
-        <NavLink href="#home">Home</NavLink>
-        <NavLink href="#profile">Profile</NavLink>
-        <NavLink href="#contact">Contact</NavLink>
+        <StyledNavLink to="/" className={pathName === '/' ? sel : ''}>Home</StyledNavLink>
+        <StyledNavLink to="/cal/compvalue" className={pathName === '/cal/compvalue' ? sel : ''}>기업가치</StyledNavLink>
       </HeaderNav>
     </HeaderContainer>
   );

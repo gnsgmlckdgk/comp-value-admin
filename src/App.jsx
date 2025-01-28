@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, HashRouter, Routes, Route, Link } from 'react-router-dom';
 
 // 컴포넌트
 import { Layout } from './components/common/layout'
@@ -16,14 +16,14 @@ import { CompValue } from './pages/compValue';
 function App() {
 
     return (
-        <Router>
+        <HashRouter>
             <Layout>
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/cal/compvalue" element={<CompValue />} />
                 </Routes>
             </Layout>
-        </Router>
+        </HashRouter>
     );
 }
 
