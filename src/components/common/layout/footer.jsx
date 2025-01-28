@@ -1,23 +1,20 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Footer = styled.footer`
- grid-area: footer;
- background: #333;
- color: white;
- display: flex;
- align-items: center;
- justify-content: center;
+/* 하단 푸터 */
+const FooterContainer = styled.footer`
+  background: #181a31;
+  color: #fff;
+  text-align: center;
+  padding: 10px;
 `;
 
-function FooterLayout() {
+const Footer = () => {
     return (
-        <>
-            <Footer>
-                <p>Footer Content</p>
-            </Footer>
-        </>
-    )
-}
+        <FooterContainer>
+            <p>© 2025 My Website. All rights reserved.</p>
+        </FooterContainer>
+    );
+};
 
-export default FooterLayout;
+export default Footer;
