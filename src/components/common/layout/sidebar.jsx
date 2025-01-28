@@ -1,58 +1,58 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React from 'react';
+import styled, { css } from 'styled-components';
+import { NavLink } from 'react-router-dom';
 
-/*
-  Sidebar를 감싸는 Wrapper
-  - 이 Wrapper에 마우스가 들어오면 (onMouseEnter) => 사이드바 open
-  - 이 Wrapper 영역을 벗어나면 (onMouseLeave) => 사이드바 close
+/* 
+  사이드바를 오버레이(absolute) vs 푸시(flex item) 로 전환
+  - locked = true -> 푸시
+  - locked = false -> 오버레이
 */
-const SidebarWrapper = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  z-index: 999;
+const SidebarContainer = styled.div`
+  /* 공통 스타일 */
+  background: linear-gradient(135deg, #252850, #181a31);
+  color: #fff;
+  transition: width 0.3s ease-in-out;
+  overflow: hidden;
+
+  ${({ isLocked, isOpen }) =>
+    isLocked
+      ? css`
+          /* 푸시 모드: flex item */
+          position: relative;
+          width: ${isOpen ? '240px' : '0px'};
+        `
+      : css`
+          /* 오버레이 모드: absolute
+             BodyContainer가 relative 이므로 그 안에 절대배치
+          */
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: ${isOpen ? '240px' : '0px'};
+        `}
 `;
 
-/* 사이드바 열리기 전에도 살짝 보일 버튼 영역 (마우스 호버 유도) */
-const ToggleButton = styled.button`
+const LockButton = styled.button`
   position: absolute;
-  top: 20px;
-  left: 0;
-  padding: 8px 12px;
+  top: 15px;
+  right: 15px;
   background-color: #181a31;
   border: 1px solid #fff;
   border-radius: 4px;
   color: #fff;
+  padding: 6px 10px;
   cursor: pointer;
-
-  &:hover {
-    background-color: #202247;
-  }
+  z-index: 10;
 `;
 
-const SidebarContainer = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 240px;
-  height: 100%;
-  background: linear-gradient(135deg, #252850, #181a31);
-  color: #fff;
+const SidebarContent = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  box-sizing: border-box;
   padding-top: 60px;
-  transition: transform 0.3s ease-in-out;
-
-  /* isOpen에 따라 왼쪽 밖(-100%) 혹은 0으로 이동 */
-  transform: ${({ isOpen }) => (isOpen ? 'translateX(0)' : 'translateX(-100%)')};
-`;
-
-const SidebarTitle = styled.h2`
-  margin: 0;
-  font-size: 1.2rem;
-  text-align: center;
+  height: 100%;
+  min-height: 100vh;
 `;
 
 const MenuList = styled.ul`
@@ -63,50 +63,79 @@ const MenuList = styled.ul`
 `;
 
 const MenuItem = styled.li`
-  width: 100%;
-  padding: 15px 20px;
-  transition: background 0.2s ease;
   cursor: pointer;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
+  a {
+    display: block;
+    width: 100%;
+    padding: 15px 20px;
+    color: #fff;
+    text-decoration: none;
+    transition: background 0.2s;
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
   }
 `;
 
-const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const StyledNavLink = styled(NavLink)`
+  &.selected {
+    background-color: #444;
+    font-weight: bold;
+  }
+`;
 
-  const handleMouseEnter = () => {
-    setIsOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsOpen(false);
-  };
+/**
+ * Sidebar
+ * - locked=true => 푸시 모드 (flex item), 폭: 0 or 240
+ * - locked=false => 오버레이 모드 (absolute), 폭: 0 or 240
+ * - 마우스 호버로 열리고(onMouseEnter), 떠나면 닫힘(onMouseLeave) - 단, locked=false 일때만
+ * - Lock 버튼 클릭 => lock 토글
+ */
+function Sidebar({
+  isOpen,
+  isLocked,
+  onMouseEnter,
+  onMouseLeave,
+  onLockToggle
+}) {
+  // 열려 있거나 잠긴 상태이면 내부 컨텐츠 표시
+  const showContent = isOpen || isLocked;
 
   return (
-    <SidebarWrapper
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+    <SidebarContainer
+      isLocked={isLocked}
+      isOpen={isOpen}
+      onMouseEnter={onMouseEnter}  // 오버레이 모드에서 호버 시 열림
+      onMouseLeave={onMouseLeave}  // 오버레이 모드에서 떠나면 닫힘
     >
-      {/* 
-        클릭 기능 없이 표시만 하는 버튼 (아이콘/텍스트)
-        마우스를 여기 근처로 이동하면 사이드바가 열림 
-      */}
-      <ToggleButton>Menu</ToggleButton>
+      {/* 락 버튼: 열려있을 때만 보여줄 수도 있고, 
+          locked=true 여도 항상 보이게 해도 됨. */}
+      {showContent && (
+        <LockButton onClick={onLockToggle}>
+          {isLocked ? 'Unlock' : 'Lock'}
+        </LockButton>
+      )}
 
-      {/* 실제 사이드바 */}
-      <SidebarContainer isOpen={isOpen}>
-        <SidebarTitle>My Sidebar</SidebarTitle>
-        <MenuList>
-          <MenuItem>대시보드</MenuItem>
-          <MenuItem>게시판</MenuItem>
-          <MenuItem>설정</MenuItem>
-          <MenuItem>로그아웃</MenuItem>
-        </MenuList>
-      </SidebarContainer>
-    </SidebarWrapper>
+      {showContent && (
+        <SidebarContent>
+          <h2>My Sidebar</h2>
+          <MenuList>
+            <MenuItem>
+              <StyledNavLink to="/" end className={({ isActive }) => (isActive ? 'selected' : '')}>
+                HOME
+              </StyledNavLink>
+            </MenuItem>
+            <MenuItem>
+              <StyledNavLink to="/cal/compvalue" className={({ isActive }) => (isActive ? 'selected' : '')}>
+                계산
+              </StyledNavLink>
+            </MenuItem>
+            {/* etc */}
+          </MenuList>
+        </SidebarContent>
+      )}
+    </SidebarContainer>
   );
-};
+}
 
 export default Sidebar;

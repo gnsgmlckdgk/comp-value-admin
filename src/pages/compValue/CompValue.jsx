@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';  // npm install axios
 
-
 // 컴포넌트
-import * as comComp from '../common'
+import * as comComp from '../../components/common'
 import DetailsToggle from './detail_comp'
 
 // 스타일컴포넌트(styled-components)
@@ -12,7 +11,6 @@ import * as comp from './style/input_stcomp'
 
 // 데이터
 import dart_data from './data/open_dart'
-
 
 /**
  * 상세정보 세팅
@@ -39,7 +37,7 @@ const setDetailData = (result) => {
 }
 
 
-const InputForm = () => {
+const CompValue = () => {
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -170,4 +168,4 @@ const InputForm = () => {
         </>
     );
 }
-export default InputForm;
+export default CompValue;

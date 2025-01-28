@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
 // 컴포넌트
 import { Layout } from './components/common/layout'
+import Home from './pages/Home';
+import { CompValue } from './pages/compValue';
 
 // 컴포넌트
 // import { Header, Sidebar, Contents, Footer } from './components/common/layout';
@@ -14,21 +16,14 @@ import { Layout } from './components/common/layout'
 function App() {
 
     return (
-        <>
-            <Layout />
-
-            {/* <Container>
-                <Header />
-                <Sidebar />
-                <Contents>
-                    <Routes>
-                        <Route path='/' element={<div><h1>Home</h1></div>} />
-                        <Route path='/cal/compvalue' element={<dart_comp.InputForm />} />
-                    </Routes>
-                </Contents>
-                <Footer />
-            </Container> */}
-        </>
+        <Router>
+            <Layout>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/cal/compvalue" element={<CompValue />} />
+                </Routes>
+            </Layout>
+        </Router>
     );
 }
 
