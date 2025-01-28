@@ -8,9 +8,11 @@ const HeaderContainer = styled.header`
   left: 0;
   width: 100%;
   height: 60px;
+  box-sizing: border-box;
 
   background: linear-gradient(135deg, #252850, #181a31);
   color: #fff;
+  line-height: 60px;
 
   display: flex;
   align-items: center;
@@ -28,6 +30,7 @@ const Logo = styled.div`
 const HeaderNav = styled.nav`
   display: flex;
   gap: 20px;
+  flex-wrap: wrap; // 화면 폭이 좁아지면 아래 줄로 넘어가게
 `;
 
 const NavLink = styled.a`
@@ -41,16 +44,16 @@ const NavLink = styled.a`
 `;
 
 const Header = () => {
-    return (
-        <HeaderContainer>
-            <Logo>My Website</Logo>
-            <HeaderNav>
-                <NavLink href="#home">Home</NavLink>
-                <NavLink href="#profile">Profile</NavLink>
-                <NavLink href="#contact">Contact</NavLink>
-            </HeaderNav>
-        </HeaderContainer>
-    );
+  return (
+    <HeaderContainer>
+      <Logo>My Website</Logo>
+      <HeaderNav>
+        <NavLink href="#home">Home</NavLink>
+        <NavLink href="#profile">Profile</NavLink>
+        <NavLink href="#contact">Contact</NavLink>
+      </HeaderNav>
+    </HeaderContainer>
+  );
 };
 
 export default Header;
