@@ -1,13 +1,5 @@
 import React from 'react';
-import styled from 'styled-components';
-
-/* 하단 푸터 */
-const FooterContainer = styled.footer`
-  background: #181a31;
-  color: #fff;
-  text-align: center;
-  padding: 10px;
-`;
+import { FooterContainer } from './style/Footer'
 
 const Footer = () => {
     return (

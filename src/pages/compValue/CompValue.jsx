@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';  // npm install axios
 
 // 컴포넌트
-import * as comComp from '../../components/common'
+import LoadingOverlayComp from '../../components/common/LoadingOverlay'
 import DetailsToggle from './detail_comp'
 
 // 스타일컴포넌트(styled-components)
@@ -159,11 +159,13 @@ const CompValue = () => {
                     <DetailsToggle details={details} containerStyle={{ marginTop: '10px' }} />
                 </comp.ResultMessage>
 
-                {isLoading && (
+                {/* {isLoading && (
                     <comComp.LoadingOverlay>
                         <comComp.Spinner />
                     </comComp.LoadingOverlay>
-                )}
+                )} */}
+                <LoadingOverlayComp isLoadingFlag={isLoading} />
+
             </comp.Container>
         </>
     );

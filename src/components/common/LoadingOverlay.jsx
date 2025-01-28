@@ -1,5 +1,5 @@
+import React, { useState } from 'react';
 import styled from 'styled-components';
-// import { useState } from 'react';
 
 const LoadingOverlay = styled.div`
  position: fixed;
@@ -28,7 +28,32 @@ const Spinner = styled.div`
  }
 `;
 
-export { LoadingOverlay, Spinner }
+/**
+ * 로딩 오버레이
+ * @param {boolean} isLoadingFlag 
+ * @returns 
+ */
+const LoadingOverlayComp = ({isLoadingFlag}) => {
+  
+  // const [isLoading, setIsLoading] = useState(false);
+  // setIsLoading(isLoadingFlag);
+
+  return (
+    <>
+      {/* {isLoading && ( */}
+        {isLoadingFlag && (
+        <LoadingOverlay>
+          <Spinner />
+        </LoadingOverlay>
+        )}
+    </>
+  );
+
+}
+
+export default LoadingOverlayComp;
+
+// export { LoadingOverlay, Spinner }
 
 // Sample
 // function Form() {
