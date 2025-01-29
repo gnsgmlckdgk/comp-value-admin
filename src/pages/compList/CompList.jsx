@@ -70,9 +70,16 @@ const GridWrapper = styled.div`
   }
 `;
 
+const DataCount = styled.div`
+  display: block;
+  text-align: right;
+  font-size: 1em;
+`;
+
 const Board = () => {
   const [searchText, setSearchText] = useState('');
   const [rowData, setRowData] = useState([]);
+  const [rowCount, setRowCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
   // AG Grid 컬럼 정의
@@ -104,11 +111,13 @@ const Board = () => {
       alert(error);
       console.log(error);
       setRowData([]);
+      setRowCount(0);
     } else {
       const filteredData = data.list.filter(item => {
         return item.corpName.includes(searchText);
       });
       setRowData(filteredData);
+      setRowCount(filteredData.length);
     }
     setIsLoading(false);
   };
@@ -132,26 +141,31 @@ const Board = () => {
         </SearchBar>
       </form>
 
-      <GridWrapper>
-        {/* ag-theme-alpine 테마 사용 */}
-        <div className="ag-theme-alpine" style={{ width: '100%', height: '100%' }}>
-          <AgGridReact
-            modules={[ClientSideRowModelModule]}
-            rowData={rowData}
-            columnDefs={columnDefs}
-            defaultColDef={{
-              flex: 1,
-              resizable: true,
-              sortable: true,
-              enableRowGroup: true,
-              rowDrag: true, // 열 순서 변경(드래그)등도 가능
-            }}
-            rowDragManaged={true}
-            enableCellTextSelection={true}
-            gridOptions={gridOptions}
-          />
-        </div>
-      </GridWrapper>
+      <DataCount>{rowCount}건</DataCount>
+
+      <div style={{ zIndex: 1, position: 'relative' }}>
+        <GridWrapper>
+          {/* ag-theme-alpine 테마 사용 */}
+          <div className="ag-theme-alpine" style={{ width: '100%', height: '100%' }}>
+            <AgGridReact
+              modules={[ClientSideRowModelModule]}
+              rowData={rowData}
+              columnDefs={columnDefs}
+              defaultColDef={{
+                flex: 1,
+                resizable: true,
+                sortable: true,
+                enableRowGroup: true,
+                rowDrag: true, // 열 순서 변경(드래그)등도 가능
+              }}
+              rowDragManaged={true}
+              enableCellTextSelection={true}
+              gridOptions={gridOptions}
+            />
+          </div>
+        </GridWrapper>
+      </div>
+
     </BoardContainer>
   );
 };

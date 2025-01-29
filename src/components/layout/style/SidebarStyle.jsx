@@ -14,13 +14,14 @@ export const SidebarContainer = styled.div`
   overflow: hidden;
 
   ${({ $isLocked, $isOpen }) =>
-        $isLocked
-            ? css`
+    $isLocked
+      ? css`
           /* 푸시 모드: flex item */
           position: relative;
           width: ${$isOpen ? '240px' : '0px'};
+          z-index: 999;
         `
-            : css`
+      : css`
           /* 오버레이 모드: absolute
              BodyContainer가 relative 이므로 그 안에 절대배치
           */
@@ -28,6 +29,7 @@ export const SidebarContainer = styled.div`
           top: 0;
           left: 0;
           width: ${$isOpen ? '240px' : '0px'};
+          z-index: 999;
         `}
 `;
 
@@ -41,7 +43,7 @@ export const LockButton = styled.button`
   color: #fff;
   padding: 6px 10px;
   cursor: pointer;
-  z-index: 10;
+  z-index: 1000;
 `;
 
 export const SidebarContent = styled.div`
@@ -52,6 +54,7 @@ export const SidebarContent = styled.div`
   padding-top: 60px;
   height: 100%;
   min-height: 100vh;
+  z-index: 999;
 `;
 
 export const MenuList = styled.ul`
