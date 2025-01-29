@@ -145,6 +145,7 @@ const Board = () => {
               rowDrag: true, // 열 순서 변경(드래그)등도 가능
             }}
             rowDragManaged={true}
+            enableCellTextSelection={true}
             gridOptions={gridOptions}
           />
         </div>

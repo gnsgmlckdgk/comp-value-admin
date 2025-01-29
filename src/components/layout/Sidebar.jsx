@@ -46,7 +46,7 @@ function Sidebar({
 
       {showContent && (
         <SidebarContent>
-          <h2>My Sidebar</h2>
+          <h2>HCH</h2>
           <MenuList>
             <MenuItem>
               <StyledNavLink to="/" end className={pathName === '/' ? sel : ''}>

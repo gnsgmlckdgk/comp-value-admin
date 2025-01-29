@@ -43,9 +43,9 @@ const CompValue = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     // <input onChange={(e) => setName(e.target.value)} />
-    const [companyName, setCompanyName] = useState('삼성전자');
+    const [companyName, setCompanyName] = useState('');
     const [code, setCode] = useState('');
-    const [date, setDate] = useState('2025');
+    const [date, setDate] = useState(new Date().getFullYear());
 
     const [result, setResult] = useState(dart_data);
     const [details, setDetails] = useState([]);
@@ -88,11 +88,18 @@ const CompValue = () => {
                 <comp.Form onSubmit={handleSubmit}>
                     <div className="input-group">
                         <comp.Input type="text" className="input" placeholder="기업명"
-                            value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
+                            value={companyName} onChange={(e) => {
+                                setCompanyName(e.target.value);
+                                setCode('');
+                            }
+                            } />
                     </div>
                     <div className="input-group">
                         <comp.Input type="text" className="input" placeholder="기업코드"
-                            value={code} onChange={(e) => setCode(e.target.value)} />
+                            value={code} onChange={(e) => {
+                                setCode(e.target.value);
+                                setCompanyName('');
+                            }} />
                     </div>
                     <div className="input-group">
                         <comp.Input type="text" className="input" placeholder="기준연도"
