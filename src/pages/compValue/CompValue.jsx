@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import axios from 'axios';  // npm install axios
 
 // 컴포넌트
 import LoadingOverlayComp from '../../components/common/LoadingOverlay'
+import { sendGet } from '../../components/util/clientUtil'
 import DetailsToggle from './DetailCompValue'
 
 // 스타일컴포넌트(styled-components)
-// import { Form, Input, Button } from './input_style'
 import * as comp from './style/CompValueStyle'
 
 // 데이터
@@ -18,6 +17,8 @@ import dart_data from './data/open_dart'
  * @returns 
  */
 const setDetailData = (result) => {
+
+    if (!result) return;
 
     const detailsData = result.상세정보;
     let detailsDataArr = [];
@@ -42,7 +43,6 @@ const CompValue = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     // <input onChange={(e) => setName(e.target.value)} />
-    const [pageTitle, setPageTitle] = useState('한 주당 적정가격 계산 프로그램');
     const [companyName, setCompanyName] = useState('삼성전자');
     const [code, setCode] = useState('');
     const [date, setDate] = useState('2025');
@@ -56,43 +56,22 @@ const CompValue = () => {
             let sendUrl = "http://localhost:18080/dart/main/cal/per_value";
 
             setIsLoading(true);
-            const response = await axios.get(sendUrl, {
-                params: {
-                    corp_name: companyName,
-                    corp_code: code,
-                    year: date
-                }
-            })
-                .then(response => {
-                    setResult(response.data);
-                    setDetails(setDetailData(response.data));
 
-                })
-                .catch(error => {
-                    // 서버 응답이 있는 경우
-                    if (error.response) {
-                        switch (error.response.status) {
-                            case 400:
-                                console.log('잘못된 요청', error.response);
-                                setResult(prevState => ({
-                                    결과메시지: error.response.data.message
-                                }));
-                                break;
-                            default:
-                                console.log('서버 에러', error.response);
-                                setResult(prevState => ({
-                                    결과메시지: error.response.data.message
-                                }));
-                        }
-                    }
-                    // 서버 응답이 없는 경우
-                    else {
-                        console.log('네트워크 에러');
-                        setResult(prevState => ({
-                            결과메시지: "네트워크 에러"
-                        }));
-                    }
-                });
+            const { data, error } = await sendGet(sendUrl, {
+                corp_name: companyName,
+                corp_code: code,
+                year: date
+            });
+
+            if (error) {
+                // 에러처리
+                setResult(prevState => ({
+                    결과메시지: error
+                }));
+            } else {
+                setResult(data);
+                setDetails(setDetailData(data));
+            }
 
         } catch (error) {
             console.error(error);
@@ -104,7 +83,7 @@ const CompValue = () => {
         <>
             <comp.Container>
 
-                <comp.H1>{pageTitle}</comp.H1>
+                <comp.H1>기업가치 분석</comp.H1>
 
                 <comp.Form onSubmit={handleSubmit}>
                     <div className="input-group">
@@ -157,11 +136,6 @@ const CompValue = () => {
                     <DetailsToggle details={details} containerStyle={{ marginTop: '10px' }} />
                 </comp.ResultMessage>
 
-                {/* {isLoading && (
-                    <comComp.LoadingOverlay>
-                        <comComp.Spinner />
-                    </comComp.LoadingOverlay>
-                )} */}
                 <LoadingOverlayComp isLoadingFlag={isLoading} />
 
             </comp.Container>

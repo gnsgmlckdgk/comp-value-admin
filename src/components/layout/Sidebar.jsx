@@ -54,9 +54,10 @@ function Sidebar({
               </StyledNavLink>
             </MenuItem>
             <MenuItem>
-              <StyledNavLink to="/cal/compvalue" className={pathName === '/cal/compvalue' ? sel : ''}>
-                기업가치
-              </StyledNavLink>
+              <StyledNavLink to="/complist" className={pathName === '/complist' ? sel : ''}>기업목록</StyledNavLink>
+            </MenuItem>
+            <MenuItem>
+              <StyledNavLink to="/compvalue" className={pathName === '/compvalue' ? sel : ''}>기업가치</StyledNavLink>
             </MenuItem>
             {/* etc */}
           </MenuList>
