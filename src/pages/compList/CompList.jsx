@@ -93,6 +93,8 @@ const Board = () => {
   // 검색 버튼 (실제로는 API 호출하여 필터된 데이터 재조회 등)
   const handleSearch = async (e) => {
 
+    e.preventDefault()
+
     const sendUrl = "http://localhost:18080/dart/disclosure/corpCode";
 
     setIsLoading(true);
@@ -126,7 +128,7 @@ const Board = () => {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
-          <SearchButton onClick={handleSearch}>조회</SearchButton>
+          <SearchButton>조회</SearchButton>
         </SearchBar>
       </form>
 
