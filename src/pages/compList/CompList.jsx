@@ -99,9 +99,14 @@ const Board = () => {
     const { data, error } = await sendGet(sendUrl, {});
 
     if (error) {
-
+      alert(error);
+      console.log(error);
+      setRowData([]);
     } else {
-      setRowData(data.list);
+      const filteredData = data.list.filter(item => {
+        return item.corpName.includes(searchText);
+      });
+      setRowData(filteredData);
     }
     setIsLoading(false);
   };
@@ -113,15 +118,17 @@ const Board = () => {
       <LoadingOverlayComp isLoadingFlag={isLoading} />
 
       <Title>기업목록</Title>
-      <SearchBar>
-        <SearchInput
-          type="text"
-          placeholder="검색어를 입력하세요"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-        />
-        <SearchButton onClick={handleSearch}>조회</SearchButton>
-      </SearchBar>
+      <form onSubmit={handleSearch}>
+        <SearchBar>
+          <SearchInput
+            type="text"
+            placeholder="기업명을 입력해주세요"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+          <SearchButton onClick={handleSearch}>조회</SearchButton>
+        </SearchBar>
+      </form>
 
       <GridWrapper>
         {/* ag-theme-alpine 테마 사용 */}
