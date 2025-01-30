@@ -8,7 +8,7 @@ import { ClientSideRowModelModule } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
-import { sendGet } from '../../components/util/clientUtil'
+import { send } from '../../components/util/clientUtil'
 import LoadingOverlayComp from '../../components/common/LoadingOverlay'
 
 
@@ -105,7 +105,7 @@ const Board = () => {
     const sendUrl = "http://localhost:18080/dart/disclosure/corpCode";
 
     setIsLoading(true);
-    const { data, error } = await sendGet(sendUrl, {});
+    const { data, error } = await send(sendUrl, {});
 
     if (error) {
       alert(error);

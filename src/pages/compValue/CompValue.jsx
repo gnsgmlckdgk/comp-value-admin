@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 // 컴포넌트
 import LoadingOverlayComp from '../../components/common/LoadingOverlay'
-import { sendGet } from '../../components/util/clientUtil'
+import { send } from '../../components/util/clientUtil'
 import DetailsToggle from './DetailCompValue'
 
 // 스타일컴포넌트(styled-components)
@@ -52,12 +52,18 @@ const CompValue = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (companyName === '' && code === '') {
+            alert('기업명 또는 기업코드를 입력해주세요.');
+            return;
+        }
+
         try {
             let sendUrl = "http://localhost:18080/dart/main/cal/per_value";
 
             setIsLoading(true);
 
-            const { data, error } = await sendGet(sendUrl, {
+            const { data, error } = await send(sendUrl, {
                 corp_name: companyName,
                 corp_code: code,
                 year: date
