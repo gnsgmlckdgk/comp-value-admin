@@ -1,17 +1,23 @@
 import React from 'react';
-import { HeaderContainer, Logo, HeaderNav, StyledNavLink } from './style/HeaderStyle'
+import { HeaderContainer, Logo, HeaderNav, StyledNavLink } from './style/HeaderStyle';
+import { menuItems } from '../../config/menuConfig';
 
 const Header = ({ pathName }) => {
-
-  const sel = 'selected';
+  const selectedClass = 'selected';
 
   return (
     <HeaderContainer>
       <Logo>HCH</Logo>
       <HeaderNav>
-        <StyledNavLink to="/" className={pathName === '/' ? sel : ''}>Home</StyledNavLink>
-        <StyledNavLink to="/complist" className={pathName === '/complist' ? sel : ''}>기업목록</StyledNavLink>
-        <StyledNavLink to="/compvalue" className={pathName === '/compvalue' ? sel : ''}>기업가치</StyledNavLink>
+        {menuItems.map(({ path, label }) => (
+          <StyledNavLink
+            key={path}
+            to={path}
+            className={path === pathName ? selectedClass : ''}
+          >
+            {label}
+          </StyledNavLink>
+        ))}
       </HeaderNav>
     </HeaderContainer>
   );

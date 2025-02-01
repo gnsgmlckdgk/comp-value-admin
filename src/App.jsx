@@ -1,24 +1,20 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, HashRouter, Routes, Route, Link } from 'react-router-dom';
+import React from 'react';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 
 // 컴포넌트
-import { Layout } from './components/layout'
-import { Home, Board, CompValue } from './pages'
+import Layout from './components/layout/Layout';
+import { menuItems } from './config/menuConfig';
 
-
-function App() {
-
-    return (
-        <HashRouter>
-            <Layout>
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/compvalue" element={<CompValue />} />
-                    <Route path='/complist' element={<Board />} />
-                </Routes>
-            </Layout>
-        </HashRouter>
-    );
-}
+const App = () => (
+    <HashRouter>
+        <Layout>
+            <Routes>
+                {menuItems.map(({ path, comp: Component }) => (
+                    <Route key={path} path={path} element={<Component />} />
+                ))}
+            </Routes>
+        </Layout>
+    </HashRouter>
+);
 
 export default App;

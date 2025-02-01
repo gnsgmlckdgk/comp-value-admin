@@ -1,12 +1,11 @@
 // QuickLinks.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { menuItems } from "../../../config/menuConfig";
 
 function QuickLinks() {
-    const links = [
-        { path: '/complist', title: '기업목록' },
-        { path: '/compvalue', title: '기업가치' },
-    ];
+
+    const links = menuItems;
 
     return (
         <div style={{
@@ -17,7 +16,7 @@ function QuickLinks() {
         }}>
             {links.map((link) => (
                 <Link
-                    key={link.title}
+                    key={link.path}
                     to={link.path}
                     style={{
                         display: 'block',
@@ -31,7 +30,7 @@ function QuickLinks() {
                         color: '#333'
                     }}
                 >
-                    {link.title}
+                    {link.label}
                 </Link>
             ))}
         </div>

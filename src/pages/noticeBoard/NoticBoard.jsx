@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 
 // AG-Grid
@@ -8,10 +8,10 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 // 로딩 오버레이 (선택)
-import LoadingOverlayComp from '../../../components/common/LoadingOverlay';
+import LoadingOverlayComp from '../../components/common/LoadingOverlay';
 
 // 서버 통신 함수 (가정)
-import { send, asyncSend } from '../../../components/util/clientUtil';
+import { send, asyncSend } from '../../components/util/clientUtil';
 import { ListPlus } from 'lucide-react';
 
 /* --- 스타일들 --- */
@@ -60,7 +60,6 @@ const SearchButton = styled.button`
 const GridWrapper = styled.div`
   width: 100%;
   height: 600px;
-
   .ag-theme-alpine {
     font-family: inherit;
   }
@@ -72,41 +71,50 @@ const DataCount = styled.div`
   font-size: 1em;
 `;
 
-
-/* 함수 */
+/* --- Helper Functions --- */
 /**
- * 오늘 날짜(yyyyMMdd)
- * @returns 
+ * 오늘 날짜(yyyyMMdd) 반환
+ * @returns {string}
  */
 function getTodayYMD() {
     const today = new Date();
-
     const year = today.getFullYear();
-
-    // getMonth()는 0부터 시작하므로 +1 해줌
     const month = String(today.getMonth() + 1).padStart(2, '0');
-
-    // getDate()가 1~31 범위
     const day = String(today.getDate()).padStart(2, '0');
-
-    // "YYYYMMDD" 형태로 합침
     return `${year}${month}${day}`;
 }
 
 /**
- * yyyyMMdd -> yyyy-MM-dd
- * @param {*} ymd 
- * @returns 
+ * yyyyMMdd -> yyyy-MM-dd 형식으로 변환
+ * @param {string} ymd 
+ * @returns {string}
  */
 function formatYmdToDash(ymd) {
-    // ymd가 "YYYYMMDD" (예: "20250130")라는 전제
-    const year = ymd.slice(0, 4);  // "2025"
-    const month = ymd.slice(4, 6); // "01"
-    const day = ymd.slice(6, 8);   // "30"
-
-    return `${year}-${month}-${day}`; // "2025-01-30"
+    const year = ymd.slice(0, 4);
+    const month = ymd.slice(4, 6);
+    const day = ymd.slice(6, 8);
+    return `${year}-${month}-${day}`;
 }
 
+/**
+ * 기본 요청 데이터 생성
+ * @returns {object}
+ */
+function getDefReqData() {
+    return {
+        corp_code: "",
+        bgn_de: "20200117", // 테스트용
+        end_de: "20200117", // 테스트용
+        last_reprt_at: "",
+        pblntf_ty: "B",
+        pblntf_detail_ty: "",
+        corp_cls: "Y",
+        sort: "",
+        sort_mth: "",
+        page_no: "1",
+        page_count: "100"
+    };
+}
 
 /* --- NoticeBoard 컴포넌트 --- */
 function NoticeBoard() {
@@ -114,10 +122,10 @@ function NoticeBoard() {
     const [rowData, setRowData] = useState([]);
     const [rowCount, setRowCount] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
-    const [today, setToday] = useState(getTodayYMD());
+    const [today] = useState(getTodayYMD());
 
-    // AG Grid 컬럼 정의 (새로운 데이터 구조에 맞춰 작성)
-    const [columnDefs] = useState([
+    // AG Grid 컬럼 정의 (메모이제이션)
+    const columnDefs = useMemo(() => [
         { field: 'corp_cls', headerName: '구분', sortable: true, hide: true },
         { field: 'corp_name', headerName: '기업명', sortable: true, flex: 3 },
         { field: 'corp_code', headerName: '기업코드', sortable: true, hide: true },
@@ -127,111 +135,67 @@ function NoticeBoard() {
         { field: 'flr_nm', headerName: '공시제출인', sortable: true, flex: 2 },
         { field: 'rcept_dt', headerName: '접수일자', sortable: true, flex: 2 },
         { field: 'rm', headerName: '비고', sortable: true, flex: 1 },
-    ]);
+    ], []);
 
-    // AG Grid localeText 등
-    const gridOptions = {
-        localeText: {
-            noRowsToShow: '데이터가 없습니다'
-        }
-    };
+    // AG Grid 옵션 (메모이제이션)
+    const gridOptions = useMemo(() => ({
+        localeText: { noRowsToShow: '데이터가 없습니다' }
+    }), []);
 
-    const getDefReqData = () => {
+    // 검색어에 따른 데이터 필터링 (useCallback)
+    const filterData = useCallback((list) => {
+        return list.filter(item => item.corp_name.includes(searchText));
+    }, [searchText]);
 
-        return {
-            "corp_code": "",
-            // "bgn_de": today,
-            // "end_de": today,
-            "bgn_de": "20200117",   // 테스트용
-            "end_de": "20200117",   // 테스트용
-            "last_reprt_at": "",
-            "pblntf_ty": "B",
-            "pblntf_detail_ty": "",
-            "corp_cls": "Y",
-            "sort": "",
-            "sort_mth": "",
-            "page_no": "1",
-            "page_count": "100"
-        };
-    }
-
-    // 검색 함수 (corp_name 에 searchText가 포함되는지 필터)
-    const handleSearch = async (e) => {
-        e?.preventDefault();    // useEffect가 호출해도 실행될수 있게 ? 추가
-        setIsLoading(true);
-
-        // 예: API 엔드포인트 가정
-        const sendUrl = 'http://localhost:18080/dart/disclosure/disc/list';
-
-        // 실제로는 send 등 서버 요청
-        const { data, error } = await send(sendUrl, getDefReqData(), "POST");
-        if (error) {
-            alert(`에러 발생: ${error}`);
-            setRowData([]);
-            setRowCount(0);
-        } else {
-            // data가 위 JSON 형태로 [{ corp_cls:..., corp_name:..., ... }, ...]
-            // 검색 로직
-            if (data.status === '000') {
-                const list = data.list;
-
-                const filteredData = list.filter(item =>
-                    item.corp_name.includes(searchText)
-                );
-                setRowData(filteredData);
-                setRowCount(filteredData.length);
-            }
-        }
-
-        setIsLoading(false);
-    };
-
-    const initSearch = (e) => {
-        e?.preventDefault();    // useEffect가 호출해도 실행될수 있게 ? 추가
-        setIsLoading(true);
-
-        // 예: API 엔드포인트 가정
-        const sendUrl = 'http://localhost:18080/dart/disclosure/disc/list';
-
-        // 실제로는 send 등 서버 요청
-        asyncSend(sendUrl, getDefReqData(), "POST")
-            .then(({ data, error }) => {
+    // API 호출 및 데이터 업데이트 함수 (useCallback)
+    const fetchNoticeList = useCallback(
+        async (apiCall) => {
+            setIsLoading(true);
+            const sendUrl = 'http://localhost:18080/dart/disclosure/disc/list';
+            try {
+                const { data, error } = await apiCall(sendUrl, getDefReqData(), "POST");
                 if (error) {
                     alert(`에러 발생: ${error}`);
                     setRowData([]);
                     setRowCount(0);
-                } else {
+                } else if (data.status === '000') {
                     const list = data.list || [];
-                    const filteredData = list.filter(item =>
-                        item.corp_name.includes(searchText)
-                    );
+                    const filteredData = filterData(list);
                     setRowData(filteredData);
                     setRowCount(filteredData.length);
                 }
-
-            }).catch(err => {
-                // 네트워크 오류 등 처리
-                console.log(err);
+            } catch (err) {
+                console.error(err);
                 alert('요청 중 오류가 발생했습니다.');
                 setRowData([]);
                 setRowCount(0);
-            }).finally(() => {
+            } finally {
                 setIsLoading(false);
-            });
-    };
+            }
+        },
+        [filterData]
+    );
 
-    // 컴포넌트가 처음 렌더된 직후, 자동 실행
+    // 페이지가 처음 열릴 때 한 번만 조회 (검색어 변경에 영향받지 않음)
     useEffect(() => {
-        initSearch();
-    }, [])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        fetchNoticeList(asyncSend);
+    }, []);
+
+    // 검색 폼 제출 핸들러 (send 사용)
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        await fetchNoticeList(send);
+    };
 
     return (
         <BoardContainer>
-            {/* 로딩중 오버레이 (선택) */}
             <LoadingOverlayComp isLoadingFlag={isLoading} />
 
-            <Title>오늘의 주요사항 보고 <br /> {formatYmdToDash(today)}</Title>
-            {/* 검색 폼 */}
+            <Title>
+                오늘의 주요사항 보고 <br /> {formatYmdToDash(today)}
+            </Title>
+
             <form onSubmit={handleSearch}>
                 <SearchBar>
                     <SearchInput
@@ -244,7 +208,6 @@ function NoticeBoard() {
                 </SearchBar>
             </form>
 
-            {/* 데이터 건수 표시 */}
             <DataCount>{rowCount}건 (최대100건)</DataCount>
 
             <GridWrapper>
@@ -266,4 +229,5 @@ function NoticeBoard() {
         </BoardContainer>
     );
 }
+
 export default NoticeBoard;

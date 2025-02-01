@@ -5,60 +5,50 @@ import Footer from './Footer';
 import Sidebar from './Sidebar';
 import { OuterContainer, BodyContainer, MainContent, HoverTrigger } from './style/LayoutStyle';
 
+const Layout = ({ children }) => {
+  const [isOpen, setIsOpen] = useState(false);    // Hover로 열림/닫힘 상태
+  const [isLocked, setIsLocked] = useState(false);  // Lock 버튼 상태
 
+  // useLocation을 통해 현재 경로를 가져옴 (구조 분해 할당 사용)
+  const { pathname: pathName } = useLocation();
 
-function Layout({ children }) {
-  const [isOpen, setIsOpen] = useState(false);  // Hover로 열림/닫힘
-  const [isLocked, setIsLocked] = useState(false); // Lock 버튼
+  // 사이드바가 열려 있는 실제 여부: (Hover 또는 Lock)
+  const isSidebarOpen = isOpen || isLocked;
 
-  const location = useLocation();
-  const pathName = location.pathname;
-
-  // 실제 열림 여부: (Hover로 열렸거나) or (Locked)
-  const actualOpen = isOpen || isLocked;
-
-  // 투명 트리거에 마우스 진입
+  // 투명 트리거에 마우스 진입 시, Lock 상태가 아니라면 사이드바를 열기
   const handleTriggerEnter = () => {
     if (!isLocked) {
       setIsOpen(true);
     }
   };
 
-  // 사이드바(열린 영역)에서 마우스가 나감
+  // 사이드바 영역에서 마우스가 나가면, Lock 상태가 아니라면 사이드바를 닫기
   const handleSidebarLeave = () => {
     if (!isLocked) {
       setIsOpen(false);
     }
   };
 
-  // Lock / Unlock
+  // Lock 버튼 토글: Lock 켜면 사이드바를 열고, Lock 해제 시 Lock 상태만 해제
   const handleLockToggle = () => {
     if (!isLocked) {
-      // Lock 켜면, 메인 콘텐츠는 오른쪽으로 밀려야 하므로 isOpen도 true
       setIsLocked(true);
       setIsOpen(true);
     } else {
-      // Unlock
       setIsLocked(false);
-      // 마우스가 이미 나가 있다면 즉시 닫힘
+      // 필요 시, 마우스 상태에 따라 isOpen 상태를 추가로 조정할 수 있음
     }
   };
 
-
   return (
     <OuterContainer>
-      <Header
-        pathName={pathName}
-      />
+      <Header pathName={pathName} />
 
       <BodyContainer>
-        {!actualOpen && (
-          <HoverTrigger onMouseEnter={handleTriggerEnter} />
-        )}
+        {!isSidebarOpen && <HoverTrigger onMouseEnter={handleTriggerEnter} />}
 
-        {/* 사이드바 */}
         <Sidebar
-          isOpen={actualOpen}
+          isOpen={isSidebarOpen}
           isLocked={isLocked}
           onMouseEnter={handleTriggerEnter}
           onMouseLeave={handleSidebarLeave}
@@ -66,15 +56,12 @@ function Layout({ children }) {
           pathName={pathName}
         />
 
-        {/* 메인 콘텐츠 */}
-        <MainContent>
-          {children}
-        </MainContent>
+        <MainContent>{children}</MainContent>
       </BodyContainer>
 
       <Footer />
     </OuterContainer>
   );
-}
+};
 
 export default Layout;

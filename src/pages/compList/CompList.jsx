@@ -1,5 +1,4 @@
-// Board.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import styled from 'styled-components';
 
 // AG-Grid
@@ -8,14 +7,11 @@ import { ClientSideRowModelModule } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
-import { send } from '../../components/util/clientUtil'
-import LoadingOverlayComp from '../../components/common/LoadingOverlay'
-
+import { send } from '../../components/util/clientUtil';
+import LoadingOverlayComp from '../../components/common/LoadingOverlay';
 
 // 디자인 관련 컨테이너들
 const BoardContainer = styled.div`
-  /* 레이아웃 안에 들어갈 컨테이너:
-     배경색은 흰색 박스로 해서, 사이트 전체(어두운 그라디언트)와 구분 */
   max-width: 1200px;
   margin: 40px auto;
   padding: 20px;
@@ -59,14 +55,11 @@ const SearchButton = styled.button`
 `;
 
 const GridWrapper = styled.div`
-  /* AG Grid의 테마(ag-theme-alpine 등)를 감싸는 컨테이너 */
   width: 100%;
   height: 600px;
 
   .ag-theme-alpine {
-    /* 필요시 기본 색상이나 폰트 조정 */
     font-family: inherit;
-    /* 예: background-color: #f8f9fa; */
   }
 `;
 
@@ -76,31 +69,30 @@ const DataCount = styled.div`
   font-size: 1em;
 `;
 
-const Board = () => {
+const CompList = () => {
   const [searchText, setSearchText] = useState('');
   const [rowData, setRowData] = useState([]);
   const [rowCount, setRowCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  // AG Grid 컬럼 정의
-  const [columnDefs] = useState([
+  // AG Grid 컬럼 정의 (useMemo로 고정)
+  const columnDefs = useMemo(() => [
     { field: 'corpCode', headerName: '기업코드', sortable: true, rowDrag: false },
     { field: 'corpName', headerName: '기업명', sortable: true },
     { field: 'stockCode', headerName: '종목코드', sortable: true },
     { field: 'modifyDate', headerName: '갱신일', sortable: true },
-  ]);
+  ], []);
 
-  const gridOptions = {
+  // AG Grid 옵션 (useMemo 사용)
+  const gridOptions = useMemo(() => ({
     localeText: {
-      noRowsToShow: "데이터가 없습니다" // 기본 "No Rows To Show" 문구를 한글로 변경
-      // 그 외 필요하면 다른 문구들도 localeText에서 변경 가능
+      noRowsToShow: "데이터가 없습니다"
     }
-  };
+  }), []);
 
-  // 검색 버튼 (실제로는 API 호출하여 필터된 데이터 재조회 등)
+  // 검색 버튼 핸들러: API 호출 후, 결과 필터링
   const handleSearch = async (e) => {
-
-    e.preventDefault()
+    e.preventDefault();
 
     const sendUrl = "http://localhost:18080/dart/disclosure/corpCode";
 
@@ -109,13 +101,13 @@ const Board = () => {
 
     if (error) {
       alert(error);
-      console.log(error);
+      console.error(error);
       setRowData([]);
       setRowCount(0);
-    } else {
-      const filteredData = data.list.filter(item => {
-        return item.corpName.includes(searchText);
-      });
+    } else if (data?.list) {
+      const filteredData = data.list.filter(item =>
+        item.corpName.includes(searchText)
+      );
       setRowData(filteredData);
       setRowCount(filteredData.length);
     }
@@ -123,9 +115,7 @@ const Board = () => {
   };
 
   return (
-
     <BoardContainer>
-
       <LoadingOverlayComp isLoadingFlag={isLoading} />
 
       <Title>기업목록</Title>
@@ -145,7 +135,6 @@ const Board = () => {
 
       <div style={{ zIndex: 1, position: 'relative' }}>
         <GridWrapper>
-          {/* ag-theme-alpine 테마 사용 */}
           <div className="ag-theme-alpine" style={{ width: '100%', height: '100%' }}>
             <AgGridReact
               modules={[ClientSideRowModelModule]}
@@ -156,7 +145,7 @@ const Board = () => {
                 resizable: true,
                 sortable: true,
                 enableRowGroup: true,
-                rowDrag: true, // 열 순서 변경(드래그)등도 가능
+                rowDrag: true,
               }}
               rowDragManaged={true}
               enableCellTextSelection={true}
@@ -165,9 +154,8 @@ const Board = () => {
           </div>
         </GridWrapper>
       </div>
-
     </BoardContainer>
   );
 };
 
-export default Board;
+export default CompList;
