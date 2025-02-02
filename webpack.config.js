@@ -34,6 +34,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             template: './public/index.html', // 템플릿 파일 경로
             filename: 'index.html',
+            meta: { charset: 'UTF-8' }
         }),
     ],
     resolve: {
