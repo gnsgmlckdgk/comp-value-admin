@@ -31,6 +31,7 @@ const Input = styled.input`
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  box-sizing: border-box;
   font-size: 1rem;
   transition: border-color 0.2s;
 

@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 
-// 컴포넌트
+// 기존 컴포넌트들
 import LoadingOverlayComp from '../../components/common/LoadingOverlay';
 import { send } from '../../components/util/clientUtil';
 import DetailsToggle from './DetailCompValue';
 
-// 스타일 컴포넌트(styled-components)
+// 스타일 컴포넌트 (styled-components)
 import * as comp from './style/CompValueStyle';
 
-// 데이터 (초기 더미 데이터)
+// 더미 데이터
 import dart_data from './data/open_dart';
+
+// 대량 계산 팝업 컴포넌트 (별도 파일)
+import BulkCalcPopup from './BulkCalcPopup';
 
 /**
  * 상세정보 세팅 (결과 객체의 "상세정보" 속성을 배열 형태로 변환)
@@ -32,6 +35,9 @@ const CompValue = () => {
     const [date, setDate] = useState(new Date().getFullYear());
     const [result, setResult] = useState(dart_data);
     const [details, setDetails] = useState([]);
+
+    // 대량 계산 팝업 표시 여부
+    const [showBulkPopup, setShowBulkPopup] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -122,6 +128,13 @@ const CompValue = () => {
                 <comp.Button type="submit">검색</comp.Button>
             </comp.Form>
 
+            {/* 대량 계산 버튼 추가 */}
+            <div style={{ margin: '20px 0' }}>
+                <comp.Button onClick={() => setShowBulkPopup(true)}>
+                    대량 계산 (클립보드 붙여넣기)
+                </comp.Button>
+            </div>
+
             <comp.ResultMessage>
                 <comp.resultMessageLi>
                     <comp.resultSpan>결과메시지</comp.resultSpan>
@@ -164,6 +177,14 @@ const CompValue = () => {
             </comp.ResultMessage>
 
             <LoadingOverlayComp isLoadingFlag={isLoading} />
+
+            {/* 대량 계산 팝업 */}
+            {showBulkPopup && (
+                <BulkCalcPopup
+                    onClose={() => setShowBulkPopup(false)}
+                    year={date}
+                />
+            )}
         </comp.Container>
     );
 };

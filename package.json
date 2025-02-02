@@ -23,7 +23,8 @@
     "react-router-dom": "^6.28.2",
     "react-scripts": "^5.0.1",
     "styled-component": "^2.8.0",
-    "styled-components": "^6.1.14"
+    "styled-components": "^6.1.14",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
