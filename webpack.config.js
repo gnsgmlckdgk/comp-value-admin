@@ -1,4 +1,7 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
+
 
 module.exports = {
     entry: './src/index.js',
@@ -27,6 +30,12 @@ module.exports = {
 
         ]
     },
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: './public/index.html', // 템플릿 파일 경로
+            filename: 'index.html',
+        }),
+    ],
     resolve: {
         extensions: ['.js', '.jsx']
     }
