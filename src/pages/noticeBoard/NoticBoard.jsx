@@ -151,7 +151,9 @@ function NoticeBoard() {
     const fetchNoticeList = useCallback(
         async (apiCall) => {
             setIsLoading(true);
-            const sendUrl = 'http://localhost:18080/dart/disclosure/disc/list';
+            const sendUrl = window.location.hostname === "localhost"
+                ? "http://localhost:18080/dart/disclosure/disc/list"
+                : "/disclosure/disc/list";
             try {
                 const { data, error } = await apiCall(sendUrl, getDefReqData(), "POST");
                 if (error) {

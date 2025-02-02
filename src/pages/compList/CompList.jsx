@@ -94,7 +94,9 @@ const CompList = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
 
-    const sendUrl = "http://localhost:18080/dart/disclosure/corpCode";
+    const sendUrl = window.location.hostname === "localhost"
+      ? "http://localhost:18080/dart/disclosure/corpCode"
+      : "/dart/disclosure/corpCode";
 
     setIsLoading(true);
     const { data, error } = await send(sendUrl, {});

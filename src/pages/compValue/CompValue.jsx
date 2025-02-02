@@ -47,7 +47,9 @@ const CompValue = () => {
             return;
         }
 
-        const sendUrl = "http://localhost:18080/dart/main/cal/per_value";
+        const sendUrl = window.location.hostname === "localhost"
+            ? "http://localhost:18080/dart/main/cal/per_value"
+            : "/main/cal/per_value";
         setIsLoading(true);
 
         try {
