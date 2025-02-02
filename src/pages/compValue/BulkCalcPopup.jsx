@@ -56,6 +56,23 @@ const ProgressText = styled.div`
   font-weight: bold;
 `;
 
+// 프로그래스바 컨테이너
+const ProgressBarContainer = styled.div`
+  width: 100%;
+  height: 10px;
+  background-color: #eee;
+  border-radius: 5px;
+  margin-top: 5px;
+`;
+
+// 프로그래스바 채워지는 부분
+const ProgressBarFiller = styled.div`
+  height: 100%;
+  background-color: #252850;
+  border-radius: inherit;
+  transition: width 0.1s linear;
+`;
+
 /**
  * 날짜를 "yyyy-MM-dd HH:mm:ss" 형식의 문자열로 변환하는 함수
  * @param {Date} date 
@@ -66,10 +83,36 @@ const formatDate = (date) => {
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 };
 
+/**
+ * 주어진 ms 동안 itemProgress를 0에서 100까지 업데이트하는 함수
+ * @param {number} ms - 지연 시간 (밀리초)
+ * @param {function} setItemProgress - itemProgress 업데이트 함수
+ * @returns {Promise} - 지연이 완료되면 resolve하는 Promise
+ */
+const delayWithProgress = (ms, setItemProgress) => {
+    return new Promise((resolve) => {
+        let elapsed = 0;
+        const interval = 100; // 100ms마다 업데이트
+        setItemProgress(0);
+        const timer = setInterval(() => {
+            elapsed += interval;
+            const progress = Math.min(100, Math.round((elapsed / ms) * 100));
+            setItemProgress(progress);
+            if (elapsed >= ms) {
+                clearInterval(timer);
+                resolve();
+            }
+        }, interval);
+    });
+};
+
 const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
     const [inputText, setInputText] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    // 전체 진행도 상태 (예: { current: 3, total: 10 })
     const [progress, setProgress] = useState({ current: 0, total: 0 });
+    // 개별 항목 진행도 (0~100)
+    const [itemProgress, setItemProgress] = useState(0);
 
     const handleSubmit = async () => {
         // 기업명을 줄바꿈 단위로 분리 (빈 줄 제거)
@@ -88,7 +131,7 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
         const results = [];
         const sendUrl = "http://localhost:18080/dart/main/cal/per_value";
 
-        // 각 기업명에 대해 API 호출 (요청 사이에 3초 지연)
+        // 각 기업명에 대해 API 호출
         for (let i = 0; i < companyNames.length; i++) {
             const name = companyNames[i];
             try {
@@ -110,17 +153,19 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
                         '비고': error || (data ? data.결과메시지 : '')
                     });
                 } else {
-                    // 정상 응답의 경우, 만약 data.기업명이 없으면 입력한 name 사용하고, 그 경우 비고에 결과메시지 기록
+                    // 정상 응답의 경우, 만약 data.기업명이 없으면 입력한 name 사용하고,
+                    // 그 경우 비고에 결과메시지(실제 응답 메시지)를 기록
+                    const origMessage = data.결과메시지 || '';
                     const actualName = data.기업명 || name;
                     results.push({
-                        '결과메시지': data.결과메시지 || '',
+                        '결과메시지': origMessage,
                         '기업명': actualName,
                         '기업코드': data.기업코드 || '',
                         '주식코드': data.주식코드 || '',
                         '주당가치': data.주당가치 || '',
                         '현재가격': data.현재가격 || '',
                         '확인시간': data.확인시간 || formatDate(new Date()),
-                        '비고': data.기업명 ? '' : (data.결과메시지 || '')
+                        '비고': actualName === name ? origMessage : origMessage // 항상 실제 응답 메시지를 비고에 기록 (요청에 따라 조정 가능)
                     });
                 }
             } catch (err) {
@@ -135,10 +180,10 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
                     '비고': '요청 중 오류 발생'
                 });
             }
-            // 진행도 업데이트
+            // 전체 진행도 업데이트
             setProgress({ current: i + 1, total: companyNames.length });
-            // 3초 지연 (요청 간 간격 확보)
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            // 각 항목 당 3초 지연과 함께 개별 진행도 업데이트
+            await delayWithProgress(3000, setItemProgress);
         }
 
         // 결과 배열 변환:
@@ -148,8 +193,9 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
         const transformedResults = results.map((row, idx) => {
             const newRow = { ...row };
             newRow['No'] = idx + 1;
+            const origMessage = newRow['결과메시지'];
             newRow['결과메시지'] =
-                newRow['결과메시지'] === '정상 처리되었습니다.' ? '정상' : '오류';
+                origMessage === '정상 처리되었습니다.' ? '정상' : '오류';
             const perValue = Number(newRow['주당가치']) || 0;
             const currentPrice = Number(newRow['현재가격']) || 0;
             newRow['비교'] = perValue - currentPrice;
@@ -235,12 +281,17 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
                     onChange={(e) => setInputText(e.target.value)}
                     placeholder="예:\n삼성전자\nLG전자\n현대자동차"
                 />
+                {/* 전체 진행도 텍스트 */}
                 <ProgressText>
                     {progress.total > 0 &&
                         `${progress.current}/${progress.total}건 (${Math.round(
                             (progress.current / progress.total) * 100
                         )}%)`}
                 </ProgressText>
+                {/* 개별 항목 진행도 프로그래스바 */}
+                <ProgressBarContainer>
+                    <ProgressBarFiller style={{ width: `${itemProgress}%` }} />
+                </ProgressBarContainer>
                 <div style={{ marginTop: '10px', textAlign: 'right' }}>
                     <Button onClick={onClose}>취소</Button>
                     <Button onClick={handleSubmit}>전송</Button>
