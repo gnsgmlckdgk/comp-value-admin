@@ -131,7 +131,7 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
         const results = [];
         const sendUrl = window.location.hostname === "localhost"
             ? "http://localhost:18080/dart/main/cal/per_value"
-            : "/main/cal/per_value";
+            : "/dart/main/cal/per_value";
 
         // 각 기업명에 대해 API 호출
         for (let i = 0; i < companyNames.length; i++) {

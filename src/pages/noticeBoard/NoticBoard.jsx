@@ -103,8 +103,10 @@ function formatYmdToDash(ymd) {
 function getDefReqData() {
     return {
         corp_code: "",
-        bgn_de: "20200117", // 테스트용
-        end_de: "20200117", // 테스트용
+        // bgn_de: "20200117", // 테스트용
+        // end_de: "20200117", // 테스트용
+        bgn_de: getTodayYMD,
+        end_de: getTodayYMD,
         last_reprt_at: "",
         pblntf_ty: "B",
         pblntf_detail_ty: "",
@@ -153,7 +155,7 @@ function NoticeBoard() {
             setIsLoading(true);
             const sendUrl = window.location.hostname === "localhost"
                 ? "http://localhost:18080/dart/disclosure/disc/list"
-                : "/disclosure/disc/list";
+                : "/dart/disclosure/disc/list";
             try {
                 const { data, error } = await apiCall(sendUrl, getDefReqData(), "POST");
                 if (error) {
