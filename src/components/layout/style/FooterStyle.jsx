@@ -6,4 +6,9 @@ export const FooterContainer = styled.footer`
   color: #fff;
   text-align: center;
   padding: 10px;
+
+  @media (max-width: 768px) {
+    padding: 8px;
+    font-size: 0.8rem;
+  }
 `;

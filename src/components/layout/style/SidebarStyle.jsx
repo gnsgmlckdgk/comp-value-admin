@@ -1,13 +1,8 @@
 import styled, { css } from 'styled-components';
 import { NavLink } from 'react-router-dom';
 
-/* 
-  사이드바를 오버레이(absolute) vs 푸시(flex item) 로 전환
-  - locked = true -> 푸시
-  - locked = false -> 오버레이
-*/
+/* 사이드바: locked=true (푸시 모드), locked=false (오버레이 모드) */
 export const SidebarContainer = styled.div`
-  /* 공통 스타일 */
   background: linear-gradient(135deg, #252850, #181a31);
   color: #fff;
   transition: width 0.3s ease-in-out;
@@ -16,20 +11,22 @@ export const SidebarContainer = styled.div`
   ${({ $isLocked, $isOpen }) =>
     $isLocked
       ? css`
-          /* 푸시 모드: flex item */
           position: relative;
           width: ${$isOpen ? '240px' : '0px'};
           z-index: 999;
+          @media (max-width: 768px) {
+            width: ${$isOpen ? '200px' : '0px'};
+          }
         `
       : css`
-          /* 오버레이 모드: absolute
-             BodyContainer가 relative 이므로 그 안에 절대배치
-          */
           position: absolute;
           top: 0;
           left: 0;
           width: ${$isOpen ? '240px' : '0px'};
           z-index: 999;
+          @media (max-width: 768px) {
+            width: ${$isOpen ? '200px' : '0px'};
+          }
         `}
 `;
 
@@ -44,6 +41,13 @@ export const LockButton = styled.button`
   padding: 6px 10px;
   cursor: pointer;
   z-index: 1000;
+
+  @media (max-width: 768px) {
+    top: 10px;
+    right: 10px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
 `;
 
 export const SidebarContent = styled.div`
@@ -55,6 +59,10 @@ export const SidebarContent = styled.div`
   height: 100%;
   min-height: 100vh;
   z-index: 999;
+
+  @media (max-width: 768px) {
+    padding-top: 50px;
+  }
 `;
 
 export const MenuList = styled.ul`
@@ -73,8 +81,13 @@ export const MenuItem = styled.li`
     color: #fff;
     text-decoration: none;
     transition: background 0.2s;
+    
     &:hover {
       background: rgba(255, 255, 255, 0.1);
+    }
+    
+    @media (max-width: 768px) {
+      padding: 10px 15px;
     }
   }
 `;
