@@ -26,6 +26,11 @@ const ModalContainer = styled.div`
   width: 80%;
   max-width: 600px;
   position: relative;
+
+  @media (max-width: 600px) {
+    width: 90%;
+    padding: 15px;
+  }
 `;
 
 // 텍스트 영역 스타일
@@ -37,6 +42,10 @@ const TextArea = styled.textarea`
   border-radius: 4px;
   box-sizing: border-box;
   resize: vertical;
+
+  @media (max-width: 600px) {
+    height: 150px;
+  }
 `;
 
 // 버튼 스타일
@@ -48,12 +57,32 @@ const Button = styled.button`
   color: #fff;
   border-radius: 4px;
   cursor: pointer;
+
+  @media (max-width: 600px) {
+    padding: 8px 12px;
+    font-size: 14px;
+    margin-right: 5px;
+  }
+`;
+
+// 버튼 컨테이너 스타일 (모바일에서는 중앙 정렬)
+const ButtonContainer = styled.div`
+  margin-top: 10px;
+  text-align: right;
+
+  @media (max-width: 600px) {
+    text-align: center;
+  }
 `;
 
 const ProgressText = styled.div`
   margin-top: 10px;
   text-align: center;
   font-weight: bold;
+
+  @media (max-width: 600px) {
+    font-size: 14px;
+  }
 `;
 
 // 프로그래스바 컨테이너
@@ -129,9 +158,10 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
         setIsLoading(true);
         setProgress({ current: 0, total: companyNames.length });
         const results = [];
-        const sendUrl = window.location.hostname === "localhost"
-            ? "http://localhost:18080/dart/main/cal/per_value"
-            : "/dart/main/cal/per_value";
+        const sendUrl =
+            window.location.hostname === 'localhost'
+                ? 'http://localhost:18080/dart/main/cal/per_value'
+                : '/dart/main/cal/per_value';
 
         // 각 기업명에 대해 API 호출
         for (let i = 0; i < companyNames.length; i++) {
@@ -139,7 +169,7 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
             try {
                 const { data, error } = await send(sendUrl, {
                     corp_name: name,
-                    corp_code: "",
+                    corp_code: '',
                     year: year,
                 });
                 // 정상 응답이더라도 HttpStatus가 200이 아니면 오류 처리
@@ -152,7 +182,7 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
                         '주당가치': '',
                         '현재가격': '',
                         '확인시간': formatDate(new Date()),
-                        '비고': error || (data ? data.결과메시지 : '')
+                        '비고': error || (data ? data.결과메시지 : ''),
                     });
                 } else {
                     // 정상 응답의 경우, 만약 data.기업명이 없으면 입력한 name 사용하고,
@@ -167,7 +197,7 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
                         '주당가치': data.주당가치 || '',
                         '현재가격': data.현재가격 || '',
                         '확인시간': data.확인시간 || formatDate(new Date()),
-                        '비고': actualName === name ? origMessage : origMessage // 항상 실제 응답 메시지를 비고에 기록 (요청에 따라 조정 가능)
+                        '비고': origMessage,
                     });
                 }
             } catch (err) {
@@ -179,7 +209,7 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
                     '주당가치': '',
                     '현재가격': '',
                     '확인시간': formatDate(new Date()),
-                    '비고': '요청 중 오류 발생'
+                    '비고': '요청 중 오류 발생',
                 });
             }
             // 전체 진행도 업데이트
@@ -216,9 +246,11 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
             '현재가격',
             '비교',
             '확인시간',
-            '비고'
+            '비고',
         ];
-        const worksheet = XLSX.utils.json_to_sheet(transformedResults, { header: headerOrder });
+        const worksheet = XLSX.utils.json_to_sheet(transformedResults, {
+            header: headerOrder,
+        });
 
         // 헤더 스타일 적용: 중앙 정렬, 굵게 처리
         const range = XLSX.utils.decode_range(worksheet['!ref']);
@@ -227,23 +259,23 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
             if (worksheet[cellAddress]) {
                 worksheet[cellAddress].s = {
                     font: { bold: true },
-                    alignment: { horizontal: "center" }
+                    alignment: { horizontal: 'center' },
                 };
             }
         }
 
         // 컬럼 너비 설정 (wch: width in characters)
         worksheet['!cols'] = [
-            { wch: 5 },   // No (반으로 축소)
-            { wch: 13 },  // 결과메시지 (30% 증가)
-            { wch: 20 },  // 기업명 (2배)
-            { wch: 13 },  // 기업코드 (30% 증가)
-            { wch: 11 },  // 주식코드 (10% 증가)
-            { wch: 12 },  // 주당가치 (20% 증가)
-            { wch: 12 },  // 현재가격 (주당가치와 동일)
-            { wch: 12 },  // 비교 (주당가치와 동일)
-            { wch: 20 },  // 확인시간 (2배)
-            { wch: 20 }   // 비고 (2배)
+            { wch: 5 }, // No
+            { wch: 13 }, // 결과메시지
+            { wch: 20 }, // 기업명
+            { wch: 13 }, // 기업코드
+            { wch: 11 }, // 주식코드
+            { wch: 12 }, // 주당가치
+            { wch: 12 }, // 현재가격
+            { wch: 12 }, // 비교
+            { wch: 20 }, // 확인시간
+            { wch: 20 }, // 비고
         ];
 
         // 데이터 행에서 "주당가치"가 "현재가격"보다 높으면 해당 셀에 스타일 적용 (빨간색, 굵게)
@@ -258,7 +290,7 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
                 const perVal = perCell && perCell.v ? Number(perCell.v) : 0;
                 const curVal = curCell && curCell.v ? Number(curCell.v) : 0;
                 if (perVal > curVal && perCell) {
-                    perCell.s = { font: { bold: true, color: { rgb: "FF0000" } } };
+                    perCell.s = { font: { bold: true, color: { rgb: 'FF0000' } } };
                 }
             }
         }
@@ -294,10 +326,10 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
                 <ProgressBarContainer>
                     <ProgressBarFiller style={{ width: `${itemProgress}%` }} />
                 </ProgressBarContainer>
-                <div style={{ marginTop: '10px', textAlign: 'right' }}>
+                <ButtonContainer>
                     <Button onClick={onClose}>취소</Button>
                     <Button onClick={handleSubmit}>전송</Button>
-                </div>
+                </ButtonContainer>
             </ModalContainer>
         </ModalOverlay>
     );

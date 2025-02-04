@@ -175,9 +175,9 @@ const CompValue = () => {
                     <comp.resultSpan>확인시간</comp.resultSpan>
                     <comp.resultSpan2>{확인시간}</comp.resultSpan2>
                 </comp.resultMessageLi>
-
-                <DetailsToggle details={details} containerStyle={{ marginTop: '10px' }} />
             </comp.ResultMessage>
+
+            <DetailsToggle details={details} containerStyle={{ marginTop: '10px' }} />
 
             <LoadingOverlayComp isLoadingFlag={isLoading} />
 

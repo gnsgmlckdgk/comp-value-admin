@@ -1,69 +1,105 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 
-/**
- * 상세 정보를 토글할 수 있는 컴포넌트
- * @param {Object[]} details - 표시할 상세 정보 배열
- * @param {number} details[].id - 각 항목의 고유 ID
- * @param {string} details[].title - 항목의 제목
- * @param {string} details[].content - 항목의 상세 내용
- * @param {Object} containerStyle - 추가적인 스타일 정보
- */
+// Container: 전체 래퍼. Tailwind 클래스 대신 styled-components로 구현
+const Container = styled.div`
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 1rem;
 
-// 상수 스타일 (필요시 수정)
-const containerClass = "w-full max-w-md mx-auto p-4";
+  @media (max-width: 600px) {
+    padding: 0.75rem;
+  }
+`;
 
-const toggleButtonStyle = {
-    width: '100%',
-    padding: '12px',
-    backgroundColor: '#f8fafc',
-    border: '1px solid #e2e8f0',
-    borderRadius: '8px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    transition: 'all 0.2s',
-    cursor: 'pointer',
-    fontSize: '15px'
-};
+// ToggleButton: 상세정보 토글 버튼
+const ToggleButton = styled.button`
+  width: 100%;
+  padding: 12px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s;
+  cursor: pointer;
+  font-size: 15px;
 
-const detailsContainerStyle = {
-    marginTop: '8px',
-    padding: '16px',
-    backgroundColor: 'white',
-    border: '1px solid #e2e8f0',
-    borderRadius: '8px',
-    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
-};
+  @media (max-width: 600px) {
+    font-size: 14px;
+    padding: 10px;
+  }
+`;
 
-const listStyle = { listStyle: 'none', padding: 0, margin: 0 };
+// DetailsContainer: 상세 정보 컨테이너
+const DetailsContainer = styled.div`
+  margin-top: 8px;
+  padding: 16px;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
-const listItemStyle = {
-    display: 'flex',
-    alignItems: 'flex-start',
-    padding: '12px 0',
-    borderBottom: '1px solid #e2e8f0',
-    gap: '16px'
-};
+  @media (max-width: 600px) {
+    padding: 12px;
+  }
+`;
 
-const titleStyle = {
-    fontWeight: 500,
-    minWidth: '150px'
-};
+// List: 상세정보 목록 (ul)
+const List = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+`;
 
-const contentStyle = {
-    color: '#4b5563',
-    flex: 1
-};
+// ListItem: 각 항목 (li)
+const ListItem = styled.li`
+  display: flex;
+  align-items: flex-start;
+  padding: 12px 0;
+  border-bottom: 1px solid #e2e8f0;
+  gap: 16px;
 
-const noDataStyle = {
-    marginTop: '8px',
-    padding: '16px',
-    backgroundColor: 'white',
-    border: '1px solid #e2e8f0',
-    borderRadius: '8px',
-    textAlign: 'center',
-    color: '#6b7280'
-};
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 8px;
+  }
+`;
+
+// Title: 항목 제목
+const Title = styled.span`
+  font-weight: 500;
+  min-width: 150px;
+
+  @media (max-width: 600px) {
+    min-width: auto;
+  }
+`;
+
+// Content: 항목 내용
+const Content = styled.span`
+  color: #4b5563;
+  flex: 1;
+  word-break: break-word;
+`;
+
+// NoData: 데이터 없을 경우 표시 영역
+const NoData = styled.div`
+  margin-top: 8px;
+  padding: 16px;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  text-align: center;
+  color: #6b7280;
+
+  @media (max-width: 600px) {
+    padding: 12px;
+    font-size: 14px;
+  }
+`;
 
 const DetailsToggle = ({ details = [], containerStyle = {} }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -71,34 +107,34 @@ const DetailsToggle = ({ details = [], containerStyle = {} }) => {
     const toggleDetails = () => setIsOpen(!isOpen);
 
     return (
-        <div className={containerClass} style={containerStyle}>
-            <button onClick={toggleDetails} style={toggleButtonStyle}>
+        <Container style={containerStyle}>
+            <ToggleButton onClick={toggleDetails}>
                 상세정보
-            </button>
+            </ToggleButton>
 
             {isOpen && (
                 details.length > 0 ? (
-                    <div style={detailsContainerStyle}>
-                        <ul style={listStyle}>
+                    <DetailsContainer>
+                        <List>
                             {details.map(item => (
-                                <li key={item.id} style={listItemStyle}>
-                                    <span style={titleStyle}>{item.title}</span>
-                                    <span style={contentStyle}>
+                                <ListItem key={item.id}>
+                                    <Title>{item.title}</Title>
+                                    <Content>
                                         {(typeof item.content === 'number' || !isNaN(item.content))
                                             ? Number(item.content).toLocaleString()
                                             : item.content}
-                                    </span>
-                                </li>
+                                    </Content>
+                                </ListItem>
                             ))}
-                        </ul>
-                    </div>
+                        </List>
+                    </DetailsContainer>
                 ) : (
-                    <div style={noDataStyle}>
+                    <NoData>
                         데이터가 없습니다.
-                    </div>
+                    </NoData>
                 )
             )}
-        </div>
+        </Container>
     );
 };
 

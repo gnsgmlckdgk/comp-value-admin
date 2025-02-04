@@ -23,6 +23,11 @@ const BoardContainer = styled.div`
   box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  @media (max-width: 768px) {
+    margin: 20px;
+    padding: 15px;
+  }
 `;
 
 const Title = styled.h1`
@@ -30,12 +35,20 @@ const Title = styled.h1`
   font-size: 1.5rem;
   text-align: center;
   color: #181a31;
+
+  @media (max-width: 600px) {
+    font-size: 1.3rem;
+  }
 `;
 
 const SearchBar = styled.div`
   display: flex;
   gap: 8px;
   margin-bottom: 16px;
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+  }
 `;
 
 const SearchInput = styled.input`
@@ -43,6 +56,11 @@ const SearchInput = styled.input`
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  box-sizing: border-box;
+
+  @media (max-width: 600px) {
+    width: 100%;
+  }
 `;
 
 const SearchButton = styled.button`
@@ -52,14 +70,24 @@ const SearchButton = styled.button`
   background: linear-gradient(135deg, #252850, #181a31);
   color: #fff;
   cursor: pointer;
+
   &:hover {
     opacity: 0.9;
+  }
+
+  @media (max-width: 600px) {
+    width: 100%;
   }
 `;
 
 const GridWrapper = styled.div`
   width: 100%;
   height: 600px;
+
+  @media (max-width: 768px) {
+    height: 400px;
+  }
+
   .ag-theme-alpine {
     font-family: inherit;
   }
@@ -69,6 +97,10 @@ const DataCount = styled.div`
   display: block;
   text-align: right;
   font-size: 1em;
+
+  @media (max-width: 600px) {
+    text-align: left;
+  }
 `;
 
 /* --- Helper Functions --- */
