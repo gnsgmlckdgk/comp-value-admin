@@ -91,6 +91,7 @@ const GridWrapper = styled.div`
   .ag-theme-alpine {
     font-family: inherit;
   }
+
 `;
 
 const DataCount = styled.div`
@@ -102,6 +103,16 @@ const DataCount = styled.div`
     text-align: left;
   }
 `;
+
+
+const ReportNameRenderer = (params) => {
+    return (
+        <div style={{ cursor: 'pointer' }}>
+            {params.value}
+        </div>
+    );
+};
+
 
 /* --- Helper Functions --- */
 /**
@@ -164,7 +175,7 @@ function NoticeBoard() {
         { field: 'corp_name', headerName: '기업명', sortable: true, flex: 3 },
         { field: 'corp_code', headerName: '기업코드', sortable: true, hide: true },
         { field: 'stock_code', headerName: '종목코드', sortable: true, hide: true },
-        { field: 'report_nm', headerName: '보고서명', sortable: true, flex: 4 },
+        { field: 'report_nm', headerName: '보고서명', sortable: true, flex: 4, cellRenderer: ReportNameRenderer },
         { field: 'rcept_no', headerName: '접수번호', sortable: true, hide: true },
         { field: 'flr_nm', headerName: '공시제출인', sortable: true, flex: 2 },
         { field: 'rcept_dt', headerName: '접수일자', sortable: true, flex: 2 },
@@ -224,6 +235,14 @@ function NoticeBoard() {
         await fetchNoticeList(send);
     };
 
+    const onCellClicked = (e) => {
+        // 특정 컬럼(여기서는 'corp_name' 컬럼)일 경우에만 이벤트 처리
+        if (e.colDef.field === 'report_nm') {
+            const rceptNo = e.data.rcept_no;
+            window.open(`https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${rceptNo}`, '_blank');
+        }
+    }
+
     return (
         <BoardContainer>
             <LoadingOverlayComp isLoadingFlag={isLoading} />
@@ -259,6 +278,7 @@ function NoticeBoard() {
                         }}
                         gridOptions={gridOptions}
                         enableCellTextSelection={true}
+                        onCellClicked={onCellClicked} // 셀 클릭 이벤트 등록
                     />
                 </div>
             </GridWrapper>
