@@ -1,4 +1,4 @@
-import { Home, NoticBoard, CompList, CompValue } from '../pages'
+import { Home, NoticBoard, CompList, CompValue, CompValueManual } from '../pages'
 
 // src/config/menuConfig.js
 export const menuItems = [
@@ -6,4 +6,5 @@ export const menuItems = [
     { label: "주요사항 공지", path: "/notice", comp: NoticBoard },
     { label: "기업목록", path: "/complist", comp: CompList },
     { label: "기업가치", path: "/compvalue", comp: CompValue },
+    { label: "기업가치(수동)", path: "/compvalue/manual", comp: CompValueManual },
 ];

@@ -27,6 +27,18 @@ export const H1 = styled.h1`
   }
 `;
 
+/* H2: 부제목 스타일 */
+export const H2 = styled.h2`
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #777777;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+`;
+
 /* Form: 입력 폼 레이아웃, flex-wrap를 사용하여 반응형 배치 */
 export const Form = styled.form`
   display: flex;

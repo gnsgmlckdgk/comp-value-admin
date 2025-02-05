@@ -96,7 +96,8 @@ const CompValue = () => {
     return (
         <comp.Container>
             <comp.H1>기업가치 분석</comp.H1>
-
+            <comp.H2>당기, 전전기 등 현재년도 기준 아직 재무정보가 없는 경우<br />
+                가장 최근 재무정보를 한번 더 읽어서 계산하기 때문에<br /> 수동계산이랑 값이 다를 수 있음.</comp.H2>
             <comp.Form onSubmit={handleSubmit}>
                 <div className="input-group">
                     <comp.Input
