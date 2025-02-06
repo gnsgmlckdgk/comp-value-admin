@@ -43,6 +43,26 @@ const SearchButton = styled.button`
   }
 `;
 
+const ResetButton = styled.button`
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #6c757d, #495057);
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+
+  &:hover {
+    opacity: 0.9;
+  }
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+`;
+
 const FormWrapper = styled.form`
   display: flex;
   flex-direction: column;
@@ -71,6 +91,13 @@ const FormGroup = styled.div`
     border-radius: 4px;
     font-size: 1rem;
   }
+`;
+
+// 오류 메시지 스타일
+const ErrorText = styled.div`
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: red;
 `;
 
 // 영업이익 그룹은 전체 열을 차지하도록 함
@@ -121,7 +148,7 @@ const ResultContainer = styled.div`
 
 /* --- 컴포넌트 --- */
 function CompValueManual() {
-    // 숫자 필드 이름들을 배열로 정의 (영업이익 3개 포함)
+    // currentRatio는 자동 계산되므로 numericFields에서 제외합니다.
     const numericFields = [
         'unit',
         'operatingProfitPrePre',
@@ -129,61 +156,132 @@ function CompValueManual() {
         'operatingProfitCurrent',
         'currentAssetsTotal',
         'currentLiabilitiesTotal',
-        'currentRatio',
         'investmentAssets',
         'fixedLiabilities',
         'issuedShares'
     ];
 
-    // 초기 상태: 숫자 필드들은 원본 값(콤마 없음)으로 저장합니다.
-    const [formData, setFormData] = useState({
+    // 초기 상태: 모든 숫자 필드는 원본 값(콤마 없음)으로 저장
+    const initialFormData = {
         unit: '100000000',
         operatingProfitPrePre: '',
         operatingProfitPre: '',
         operatingProfitCurrent: '',
         currentAssetsTotal: '',
         currentLiabilitiesTotal: '',
-        currentRatio: '',
+        currentRatio: '', // 자동 계산
         investmentAssets: '',
         fixedLiabilities: '',
         issuedShares: ''
-    });
-
-    // 응답 결과를 저장할 상태
-    const [result, setResult] = useState('');
-
-    // 천 단위 콤마를 추가하는 함수
-    const formatNumber = (value) => {
-        if (!value) return '';
-        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     };
 
-    // onChange 핸들러: 숫자 필드인 경우 입력값에서 콤마를 제거한 후 상태에 저장
+    const [formData, setFormData] = useState(initialFormData);
+    const [result, setResult] = useState('');
+    const [formErrors, setFormErrors] = useState({});
+
+    // 천 단위 콤마 추가 함수 (소수점은 그대로, 음수도 처리)
+    const formatNumber = (value) => {
+        if (!value) return '';
+        let str = value.toString();
+        let sign = '';
+        if (str.startsWith('-')) {
+            sign = '-';
+            str = str.slice(1);
+        }
+        const parts = str.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return sign + parts.join('.');
+    };
+
+    // onChange 핸들러
     const handleChange = (e) => {
         const { name, value } = e.target;
         let processedValue = value;
+        // 숫자 필드(단, currentRatio는 자동 계산이므로 제외)에 대해서만 처리
         if (numericFields.includes(name)) {
-            // 입력값에서 콤마 제거 및 숫자만 남기기
-            processedValue = value.replace(/,/g, '').replace(/\D/g, '');
+            processedValue = value.replace(/,/g, '');
+            if (processedValue.startsWith('-')) {
+                processedValue = '-' + processedValue.slice(1).replace(/\D/g, '');
+            } else {
+                processedValue = processedValue.replace(/\D/g, '');
+            }
         }
-        setFormData((prev) => ({
-            ...prev,
-            [name]: processedValue
-        }));
+        // 입력 시 해당 필드 오류 제거
+        setFormErrors((prev) => {
+            const newErrors = { ...prev };
+            if (newErrors[name]) {
+                delete newErrors[name];
+            }
+            return newErrors;
+        });
+        setFormData((prev) => {
+            const updated = {
+                ...prev,
+                [name]: processedValue
+            };
+            // 유동자산 또는 유동부채가 변경되면 유동비율을 계산 (값이 없거나 0이면 0)
+            if (name === 'currentAssetsTotal' || name === 'currentLiabilitiesTotal') {
+                const assets = parseFloat(updated.currentAssetsTotal) || 0;
+                const liabilities = parseFloat(updated.currentLiabilitiesTotal) || 0;
+                const ratio = liabilities === 0 ? 0 : assets / liabilities;
+                // 소수점 3자리까지 반올림하여 저장
+                updated.currentRatio = ratio.toFixed(3);
+            }
+            return updated;
+        });
+    };
+
+    // 제출 전 필수 입력값 검증
+    const validate = () => {
+        const requiredFields = [
+            'unit',
+            'operatingProfitPrePre',
+            'operatingProfitPre',
+            'operatingProfitCurrent',
+            'currentAssetsTotal',
+            'currentLiabilitiesTotal',
+            'investmentAssets',
+            'fixedLiabilities',
+            'issuedShares'
+        ];
+        let errors = {};
+        requiredFields.forEach((field) => {
+            if (formData[field].trim() === '') {
+                errors[field] = '필수 입력 값입니다.';
+            }
+        });
+        return errors;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const errors = validate();
+        if (Object.keys(errors).length > 0) {
+            setFormErrors(errors);
+            return;
+        }
         try {
-            // 백엔드 엔드포인트를 실제 주소로 교체하세요.
-            const response = await send('/api/financial-input', formData, 'POST');
-            // 응답값을 result 상태에 저장 (response.data.result 형식 가정)
+            const sendUrl = window.location.hostname === "localhost"
+                ? "http://localhost:18080/dart/main/cal/per_value/manual"
+                : "/dart/main/cal/per_value/manual";
+
+            const response = await send(sendUrl, formData, 'POST');
             setResult(response.data ? response.data.result : JSON.stringify(response));
-            alert('전송 성공');
+            // 제출 성공 시 오류 초기화
+            setFormErrors({});
         } catch (error) {
             console.error(error);
-            alert('전송 실패');
         }
+    };
+
+    // 초기화 버튼 핸들러: 단위는 그대로 두고 나머지는 초기화
+    const handleReset = () => {
+        setFormData({
+            ...initialFormData,
+            unit: formData.unit
+        });
+        setResult('');
+        setFormErrors({});
     };
 
     return (
@@ -192,7 +290,7 @@ function CompValueManual() {
             <FormWrapper onSubmit={handleSubmit}>
                 <FieldsGrid>
                     <FormGroup>
-                        <label htmlFor="unit">단위</label>
+                        <label htmlFor="unit">단위 (Default: 1억)</label>
                         <input
                             id="unit"
                             name="unit"
@@ -200,6 +298,7 @@ function CompValueManual() {
                             value={formatNumber(formData.unit)}
                             onChange={handleChange}
                         />
+                        {formErrors.unit && <ErrorText>{formErrors.unit}</ErrorText>}
                     </FormGroup>
 
                     <FullWidthFormGroup>
@@ -215,6 +314,7 @@ function CompValueManual() {
                                     onChange={handleChange}
                                     placeholder="전전기 영업이익"
                                 />
+                                {formErrors.operatingProfitPrePre && <ErrorText>{formErrors.operatingProfitPrePre}</ErrorText>}
                             </SubFormGroup>
                             <SubFormGroup>
                                 <label htmlFor="operatingProfitPre">전기</label>
@@ -226,6 +326,7 @@ function CompValueManual() {
                                     onChange={handleChange}
                                     placeholder="전기 영업이익"
                                 />
+                                {formErrors.operatingProfitPre && <ErrorText>{formErrors.operatingProfitPre}</ErrorText>}
                             </SubFormGroup>
                             <SubFormGroup>
                                 <label htmlFor="operatingProfitCurrent">당기</label>
@@ -237,6 +338,7 @@ function CompValueManual() {
                                     onChange={handleChange}
                                     placeholder="당기 영업이익"
                                 />
+                                {formErrors.operatingProfitCurrent && <ErrorText>{formErrors.operatingProfitCurrent}</ErrorText>}
                             </SubFormGroup>
                         </SubFieldsGrid>
                     </FullWidthFormGroup>
@@ -250,6 +352,7 @@ function CompValueManual() {
                             value={formatNumber(formData.currentAssetsTotal)}
                             onChange={handleChange}
                         />
+                        {formErrors.currentAssetsTotal && <ErrorText>{formErrors.currentAssetsTotal}</ErrorText>}
                     </FormGroup>
                     <FormGroup>
                         <label htmlFor="currentLiabilitiesTotal">유동부채합계</label>
@@ -260,6 +363,7 @@ function CompValueManual() {
                             value={formatNumber(formData.currentLiabilitiesTotal)}
                             onChange={handleChange}
                         />
+                        {formErrors.currentLiabilitiesTotal && <ErrorText>{formErrors.currentLiabilitiesTotal}</ErrorText>}
                     </FormGroup>
                     <FormGroup>
                         <label htmlFor="currentRatio">유동비율</label>
@@ -268,11 +372,11 @@ function CompValueManual() {
                             name="currentRatio"
                             type="text"
                             value={formatNumber(formData.currentRatio)}
-                            onChange={handleChange}
+                            readOnly
                         />
                     </FormGroup>
                     <FormGroup>
-                        <label htmlFor="investmentAssets">투자자산(비유동자산내)</label>
+                        <label htmlFor="investmentAssets">투자자산 (비유동자산내)</label>
                         <input
                             id="investmentAssets"
                             name="investmentAssets"
@@ -280,9 +384,10 @@ function CompValueManual() {
                             value={formatNumber(formData.investmentAssets)}
                             onChange={handleChange}
                         />
+                        {formErrors.investmentAssets && <ErrorText>{formErrors.investmentAssets}</ErrorText>}
                     </FormGroup>
                     <FormGroup>
-                        <label htmlFor="fixedLiabilities">고정부채(비유동부채)</label>
+                        <label htmlFor="fixedLiabilities">고정부채 (비유동부채)</label>
                         <input
                             id="fixedLiabilities"
                             name="fixedLiabilities"
@@ -290,6 +395,7 @@ function CompValueManual() {
                             value={formatNumber(formData.fixedLiabilities)}
                             onChange={handleChange}
                         />
+                        {formErrors.fixedLiabilities && <ErrorText>{formErrors.fixedLiabilities}</ErrorText>}
                     </FormGroup>
                     <FormGroup>
                         <label htmlFor="issuedShares">발행주식수</label>
@@ -300,9 +406,13 @@ function CompValueManual() {
                             value={formatNumber(formData.issuedShares)}
                             onChange={handleChange}
                         />
+                        {formErrors.issuedShares && <ErrorText>{formErrors.issuedShares}</ErrorText>}
                     </FormGroup>
                 </FieldsGrid>
-                <SearchButton type="submit">전송</SearchButton>
+                <ButtonContainer>
+                    <SearchButton type="submit">전송</SearchButton>
+                    <ResetButton type="button" onClick={handleReset}>초기화</ResetButton>
+                </ButtonContainer>
                 {result && (
                     <ResultContainer>
                         <strong>결과:</strong> {result}
