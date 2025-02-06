@@ -10,7 +10,6 @@ export const HeaderContainer = styled.header`
   box-sizing: border-box;
   background: linear-gradient(135deg, #252850, #181a31);
   color: #fff;
-  line-height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,13 +30,34 @@ export const Logo = styled.div`
   }
 `;
 
+// 모바일에서 보이는 햄버거 메뉴 아이콘
+export const MobileMenuIcon = styled.div`
+  display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  
+  @media (max-width: 768px) {
+    display: block;
+  }
+`;
+
+// HeaderNav: 데스크탑에서는 가로 배열, 모바일에서는 햄버거 메뉴 토글에 따라 세로 배열로 표시
 export const HeaderNav = styled.nav`
   display: flex;
   gap: 20px;
-  flex-wrap: wrap; /* 화면 폭이 좁아지면 아래 줄로 넘어가게 */
+  flex-wrap: wrap;
 
   @media (max-width: 768px) {
+    display: ${props => (props.$isOpen ? 'flex' : 'none')};
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background: linear-gradient(135deg, #252850, #181a31);
+    flex-direction: column;
+    align-items: center;
     gap: 10px;
+    padding: 10px 0;
   }
 `;
 
@@ -53,6 +73,6 @@ export const StyledNavLink = styled(NavLink)`
 
   &.selected {
     font-weight: bold;
-    color: #FFD700; /* Gold */
+    color: #FFD700;
   }
 `;

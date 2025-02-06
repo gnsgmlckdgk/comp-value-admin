@@ -1,19 +1,29 @@
-import React from 'react';
-import { HeaderContainer, Logo, HeaderNav, StyledNavLink } from './style/HeaderStyle';
+import React, { useState } from 'react';
+import { HeaderContainer, Logo, HeaderNav, StyledNavLink, MobileMenuIcon } from './style/HeaderStyle';
 import { menuItems } from '../../config/menuConfig';
 
 const Header = ({ pathName }) => {
-  const selectedClass = 'selected';
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
 
   return (
     <HeaderContainer>
-      <Logo>HCH</Logo>
-      <HeaderNav>
+      <StyledNavLink to="/" style={{ textDecoration: 'none' }}>
+        <Logo>HCH</Logo>
+      </StyledNavLink>
+      <MobileMenuIcon onClick={toggleMobileMenu}>
+        &#9776;
+      </MobileMenuIcon>
+      <HeaderNav $isOpen={isMobileMenuOpen}>
         {menuItems.map(({ path, label }) => (
           <StyledNavLink
             key={path}
             to={path}
-            className={path === pathName ? selectedClass : ''}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={path === pathName ? 'selected' : ''}
           >
             {label}
           </StyledNavLink>

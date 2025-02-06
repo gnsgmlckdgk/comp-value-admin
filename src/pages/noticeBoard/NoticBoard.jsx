@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 // AG-Grid
 import { AgGridReact } from 'ag-grid-react';
-import { ClientSideRowModelModule } from 'ag-grid-community';
+import { ClientSideRowModelModule, ModuleRegistry, LocaleModule } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
@@ -12,7 +12,13 @@ import LoadingOverlayComp from '../../components/common/LoadingOverlay';
 
 // 서버 통신 함수 (가정)
 import { send, asyncSend } from '../../components/util/clientUtil';
-import { ListPlus } from 'lucide-react';
+
+// 모듈 등록
+ModuleRegistry.registerModules([
+    ClientSideRowModelModule,
+    LocaleModule
+]);
+
 
 /* --- 스타일들 --- */
 const BoardContainer = styled.div`
@@ -268,7 +274,6 @@ function NoticeBoard() {
             <GridWrapper>
                 <div className="ag-theme-alpine" style={{ width: '100%', height: '100%' }}>
                     <AgGridReact
-                        modules={[ClientSideRowModelModule]}
                         rowData={rowData}
                         columnDefs={columnDefs}
                         defaultColDef={{

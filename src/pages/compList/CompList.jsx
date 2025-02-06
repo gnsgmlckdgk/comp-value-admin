@@ -3,12 +3,18 @@ import styled from 'styled-components';
 
 // AG-Grid
 import { AgGridReact } from 'ag-grid-react';
-import { ClientSideRowModelModule } from 'ag-grid-community';
+import { ModuleRegistry, ClientSideRowModelModule, RowDragModule } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 import { send } from '../../components/util/clientUtil';
 import LoadingOverlayComp from '../../components/common/LoadingOverlay';
+
+
+ModuleRegistry.registerModules([
+  ClientSideRowModelModule,
+  RowDragModule
+]);
 
 // 디자인 관련 컨테이너들
 const BoardContainer = styled.div`
@@ -171,14 +177,12 @@ const CompList = () => {
         <GridWrapper>
           <div className="ag-theme-alpine" style={{ width: '100%', height: '100%' }}>
             <AgGridReact
-              modules={[ClientSideRowModelModule]}
               rowData={rowData}
               columnDefs={columnDefs}
               defaultColDef={{
                 flex: 1,
                 resizable: true,
                 sortable: true,
-                enableRowGroup: true,
                 rowDrag: true,
               }}
               rowDragManaged={true}
