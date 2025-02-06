@@ -1,7 +1,30 @@
 // File: components/BoardListPage.jsx
 import React, { useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BoardContainer, Title, SearchButton, ResetButton, ButtonContainer } from './styles/styles';
+import {
+    BoardContainer,
+    Title,
+    SearchButton,
+    ResetButton,
+    ButtonContainer,
+    FormWrapper,
+    FieldsGrid,
+    FormGroup,
+    ErrorText,
+    FullWidthFormGroup,
+    SubFieldsGrid,
+    SubFormGroup,
+    ResultContainer,
+    PaginationContainer,
+    PaginationButton,
+    WarningMessage,
+    ConfirmModalOverlay,
+    ConfirmModalContainer,
+    ConfirmModalTitle,
+    ConfirmModalButtonContainer,
+    ConfirmButton,
+    CancelButton
+} from './styles/styles'; // 경로는 프로젝트 구조에 따라 조정하세요.
 import { AgGridReact } from 'ag-grid-react';
 import {
     ModuleRegistry,
@@ -16,13 +39,13 @@ import {
 import { motion } from 'framer-motion';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 
 // 모듈 등록
 ModuleRegistry.registerModules([
     RowSelectionModule,
     ClientSideRowModelModule,
-    ValidationModule, // Development Only
+    ValidationModule,
     PaginationModule,
     TextFilterModule,
     NumberFilterModule,
@@ -43,81 +66,9 @@ const ActionButton = styled.button`
   }
 `;
 
-// 삭제 버튼용 DeleteButton 추가 (빨간색 계열)
+// 삭제 버튼용 DeleteButton (빨간색 계열)
 const DeleteButton = styled(ActionButton)`
   background: linear-gradient(135deg, #dc3545, #c82333);
-`;
-
-// 추가: WarningMessage 스타일 (선택 없음 경고)
-const WarningMessage = styled.div`
-  margin-top: 16px;
-  padding: 8px 16px;
-  background-color: #ffe6e6;
-  color: #d8000c;
-  border: 1px solid #d8000c;
-  border-radius: 4px;
-  text-align: center;
-  font-size: 0.9rem;
-`;
-
-// 추가: 삭제 확인 모달 스타일
-const ConfirmModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-`;
-
-const ConfirmModalContainer = styled.div`
-  background: #fff;
-  border-radius: 8px;
-  padding: 24px;
-  width: 300px;
-  text-align: center;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-`;
-
-const ConfirmModalTitle = styled.h2`
-  font-size: 1.25rem;
-  margin-bottom: 16px;
-`;
-
-const ConfirmModalButtonContainer = styled.div`
-  display: flex;
-  justify-content: space-around;
-  margin-top: 16px;
-`;
-
-const ConfirmButton = styled.button`
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #28a745, #218838);
-  border: none;
-  border-radius: 4px;
-  color: #fff;
-  cursor: pointer;
-  font-size: 1rem;
-  &:hover {
-    opacity: 0.9;
-  }
-`;
-
-const CancelButton = styled.button`
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #dc3545, #c82333);
-  border: none;
-  border-radius: 4px;
-  color: #fff;
-  cursor: pointer;
-  font-size: 1rem;
-  &:hover {
-    opacity: 0.9;
-  }
 `;
 
 // ReportNameRenderer: 제목 셀에 링크 커서 적용 및 클릭 시 뷰 페이지 이동
@@ -129,7 +80,7 @@ const ReportNameRenderer = (params) => {
     );
 };
 
-// 백엔드 데이터 대신 사용할 샘플 데이터 생성 함수
+// 샘플 데이터 생성 함수
 const createSampleData = (cnt) =>
     Array.from({ length: cnt }, (_, index) => {
         const idx = index + 1;
@@ -140,18 +91,30 @@ const createSampleData = (cnt) =>
             date: '2025-01-01'
         };
     });
-const initialData = createSampleData(100);
+const totalData = createSampleData(100);
+
+//@ 그리드 페이징 설정
+// enables pagination in the grid
+const pagination = true;
+// sets 10 rows per page (default is 100)
+const paginationPageSize = 10;
+// allows the user to select the page size from a predefined list of page sizes
+const paginationPageSizeSelector = [10, 20, 50, 100];
 
 function BoardListPage() {
-    const [rowData, setRowData] = useState(initialData);
+
+    const pageSize = 30;
+
+    // 첫 페이지 데이터로 초기화
+    const [rowData, setRowData] = useState(totalData.slice(0, pageSize));
     const [searchText, setSearchText] = useState('');
-    const [pageSize, setPageSize] = useState(20);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(Math.ceil(totalData.length / pageSize));
     const [errorMsg, setErrorMsg] = useState('');
     const [showConfirm, setShowConfirm] = useState(false);
     const gridRef = useRef();
     const navigate = useNavigate();
 
-    // AG-Grid 컬럼 정의 (삭제 관련 체크박스는 제거하고 기본 컬럼만 사용)
     const [columnDefs] = useState([
         { headerName: "ID", field: "id", sortable: true, filter: true, flex: 1 },
         { headerName: "제목", field: "title", sortable: true, filter: true, flex: 5, cellRenderer: ReportNameRenderer },
@@ -159,30 +122,36 @@ function BoardListPage() {
         { headerName: "날짜", field: "date", sortable: true, filter: true, flex: 3 }
     ]);
 
-    // 셀 클릭 시, 제목 셀이면 해당 행의 뷰 페이지로 이동
+    // 셀 클릭: 제목 셀 클릭 시 해당 행의 뷰 페이지로 이동
     const onCellClicked = (params) => {
         if (params.colDef.field === "title" && params.data) {
             navigate(`/view/${params.data.id}`);
         }
     };
 
-    // 검색 버튼 클릭 시 데이터 필터링
+    // 검색: 전체 데이터에서 필터링 후 첫 페이지 데이터 설정
     const handleSearch = () => {
+        const allData = totalData; // 실제 구현에서는 백엔드에서 검색 결과 받아오기
         if (searchText === '') {
-            setRowData(initialData);
+            setRowData(allData.slice(0, pageSize));
+            setCurrentPage(1);
+            setTotalPages(Math.ceil(allData.length / pageSize));
         } else {
-            const filteredData = initialData.filter(item =>
-                item.title.includes(searchText) ||
-                item.author.includes(searchText)
+            const filteredData = allData.filter(item =>
+                item.title.includes(searchText) || item.author.includes(searchText)
             );
-            setRowData(filteredData);
+            setRowData(filteredData.slice(0, pageSize));
+            setCurrentPage(1);
+            setTotalPages(Math.ceil(filteredData.length / pageSize));
         }
     };
 
-    // 초기화 버튼 클릭 시 검색어 및 데이터 리셋
+    // 초기화: 검색어 및 데이터 리셋
     const handleReset = () => {
         setSearchText('');
-        setRowData(initialData);
+        setRowData(totalData.slice(0, pageSize));
+        setCurrentPage(1);
+        setTotalPages(Math.ceil(totalData.length / pageSize));
         setErrorMsg('');
     };
 
@@ -202,8 +171,10 @@ function BoardListPage() {
     const confirmDelete = () => {
         const selectedNodes = gridRef.current.api.getSelectedNodes();
         const selectedData = selectedNodes.map(node => node.data);
-        const remainingData = rowData.filter(item => !selectedData.some(selected => selected.id === item.id));
-        setRowData(remainingData);
+        const remainingData = totalData.filter(item => !selectedData.some(selected => selected.id === item.id));
+        setRowData(remainingData.slice(0, pageSize));
+        setTotalPages(Math.ceil(remainingData.length / pageSize));
+        setCurrentPage(1);
         setShowConfirm(false);
     };
 
@@ -212,21 +183,18 @@ function BoardListPage() {
         setShowConfirm(false);
     };
 
-    // 페이지 변경 시 처리 (백엔드 전송 샘플)
-    const onPageChanged = (newPage) => {
-        // console.log("페이지 변경:", newPage);
-        // TODO: 페이지 정보 백엔드 전송
+    // 페이지 변경: 백엔드 호출 대신 전체 데이터에서 slice (실제 구현 시 API 호출)
+    const fetchPage = (page) => {
+        const start = (page - 1) * pageSize;
+        const end = page * pageSize;
+        const pageData = totalData.slice(start, end);
+        // setRowData(pageData);
+        // TODO: 백엔드 DB조회
+
+        setCurrentPage(page);
     };
 
-    //@ 페이징 설정
-    // enables pagination in the grid
-    const pagination = true;
-    // sets 10 rows per page (default is 100)
-    const paginationPageSize = 10;
-    // allows the user to select the page size from a predefined list of page sizes
-    const paginationPageSizeSelector = [10, 20, 50, 100];
-
-    // 다중 선택을 위한 rowSelection
+    // 내장 페이징은 AgGridReact에서 pagination={true}로 활성화됨
     const rowSelection = useMemo(() => {
         return {
             mode: 'multiRow'
@@ -252,12 +220,16 @@ function BoardListPage() {
                 <SearchButton onClick={handleSearch}>검색</SearchButton>
                 <ResetButton onClick={handleReset}>초기화</ResetButton>
                 <ButtonContainer style={{ marginTop: '8px' }}>
-                    <ActionButton onClick={() => navigate('/register')}>게시글 등록</ActionButton>
-                    <DeleteButton onClick={handleDeleteButtonClick}>선택 삭제</DeleteButton>
+                    <ActionButton onClick={() => navigate('/register')}>
+                        게시글 등록
+                    </ActionButton>
+                    <DeleteButton onClick={handleDeleteButtonClick}>
+                        선택 삭제
+                    </DeleteButton>
                 </ButtonContainer>
                 {errorMsg && <WarningMessage>{errorMsg}</WarningMessage>}
             </div>
-            {/* AG-Grid 영역에 애니메이션 적용 */}
+            {/* AG-Grid 영역: 내장 페이징 활성화 */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -272,17 +244,33 @@ function BoardListPage() {
                     defaultColDef={{ flex: 1, resizable: true }}
                     rowSelection={rowSelection}
                     onCellClicked={onCellClicked}
-                    pagination={pagination}
+                    pagination={pagination}  // 내장 페이징 활성화
                     paginationPageSize={paginationPageSize}
                     paginationPageSizeSelector={paginationPageSizeSelector}
                     onPaginationChanged={() => {
                         if (gridRef.current && gridRef.current.api) {
-                            const currentPage = gridRef.current.api.paginationGetCurrentPage() + 1;
-                            onPageChanged(currentPage);
+                            const currentPageBuiltin = gridRef.current.api.paginationGetCurrentPage() + 1;
+                            // 내장 페이징과 커스텀 페이징 동기화 (원하는 경우)
+                            // setCurrentPage(currentPageBuiltin);
                         }
                     }}
                 />
             </motion.div>
+            {/* 커스텀 페이징 컨트롤 */}
+            <PaginationContainer>
+                {Array.from({ length: totalPages }, (_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                        <PaginationButton
+                            key={pageNum}
+                            $active={pageNum === currentPage}
+                            onClick={() => fetchPage(pageNum)}
+                        >
+                            {pageNum}
+                        </PaginationButton>
+                    );
+                })}
+            </PaginationContainer>
             {showConfirm && (
                 <ConfirmModalOverlay>
                     <ConfirmModalContainer>
