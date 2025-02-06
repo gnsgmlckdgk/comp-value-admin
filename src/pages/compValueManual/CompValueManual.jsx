@@ -266,7 +266,7 @@ function CompValueManual() {
                 : "/dart/main/cal/per_value/manual";
 
             const response = await send(sendUrl, formData, 'POST');
-            setResult(response.data ? response.data.result : JSON.stringify(response));
+            setResult(response.data ? formatNumber(response.data.result) : JSON.stringify(response));
             // 제출 성공 시 오류 초기화
             setFormErrors({});
         } catch (error) {
