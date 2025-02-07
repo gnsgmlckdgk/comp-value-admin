@@ -139,6 +139,9 @@ const CompList = () => {
     setIsLoading(true);
     const { data, error } = await send(sendUrl, {});
 
+    // console.log("data", data);
+    // console.log("error", error);
+
     if (error) {
       alert(error);
       console.error(error);
