@@ -36,12 +36,14 @@ const Sidebar = ({
           <SidebarContent>
             <h2>HCH</h2>
             <MenuList>
-              {menuItems.map(({ path, label }) => (
-                <MenuItem key={path}>
-                  <StyledNavLink to={path} className={path === pathName ? selectedClass : ''}>
-                    {label}
-                  </StyledNavLink>
-                </MenuItem>
+              {menuItems.map(({ path, label, show }) => (
+                show ?
+                  <MenuItem key={path}>
+                    <StyledNavLink to={path} className={path === pathName ? selectedClass : ''}>
+                      {label}
+                    </StyledNavLink>
+                  </MenuItem>
+                  : ""
               ))}
             </MenuList>
           </SidebarContent>

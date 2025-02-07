@@ -6,8 +6,8 @@ import Sidebar from './Sidebar';
 import { OuterContainer, BodyContainer, MainContent, HoverTrigger } from './style/LayoutStyle';
 
 const Layout = ({ children }) => {
-  const [isOpen, setIsOpen] = useState(false);    // Hover로 열림/닫힘 상태
-  const [isLocked, setIsLocked] = useState(false);  // Lock 버튼 상태
+  const [isOpen, setIsOpen] = useState(true);    // Hover로 열림/닫힘 상태
+  const [isLocked, setIsLocked] = useState(true);  // Lock 버튼 상태
 
   // useLocation을 통해 현재 경로를 가져옴 (구조 분해 할당 사용)
   const { pathname: pathName } = useLocation();

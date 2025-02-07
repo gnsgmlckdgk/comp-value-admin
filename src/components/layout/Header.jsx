@@ -18,15 +18,17 @@ const Header = ({ pathName }) => {
         &#9776;
       </MobileMenuIcon>
       <HeaderNav $isOpen={isMobileMenuOpen}>
-        {menuItems.map(({ path, label }) => (
-          <StyledNavLink
-            key={path}
-            to={path}
-            onClick={() => setIsMobileMenuOpen(false)}
-            className={path === pathName ? 'selected' : ''}
-          >
-            {label}
-          </StyledNavLink>
+        {menuItems.map(({ path, label, show }) => (
+          show ?
+            <StyledNavLink
+              key={path}
+              to={path}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={path === pathName ? 'selected' : ''}
+            >
+              {label}
+            </StyledNavLink>
+            : ""
         ))}
       </HeaderNav>
     </HeaderContainer>

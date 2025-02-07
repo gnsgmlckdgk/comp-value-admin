@@ -41,15 +41,17 @@ const QuickLinkItem = styled(Link)`
 `;
 
 function QuickLinks() {
-    return (
-        <QuickLinksContainer>
-            {menuItems.map((link) => (
-                <QuickLinkItem key={link.path} to={link.path}>
-                    {link.label}
-                </QuickLinkItem>
-            ))}
-        </QuickLinksContainer>
-    );
+  return (
+    <QuickLinksContainer>
+      {menuItems.map((link) => (
+        link.show ?
+          <QuickLinkItem key={link.path} to={link.path}>
+            {link.label}
+          </QuickLinkItem>
+          : ""
+      ))}
+    </QuickLinksContainer>
+  );
 }
 
 export default QuickLinks;

@@ -9,7 +9,7 @@ const App = () => (
     <HashRouter>
         <Layout>
             <Routes>
-                {menuItems.map(({ path, comp: Component }) => (
+                {menuItems.map(({ path, comp: Component, show }) => (
                     <Route key={path} path={path} element={<Component />} />
                 ))}
             </Routes>

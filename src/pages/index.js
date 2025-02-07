@@ -7,4 +7,5 @@ export { default as CompValueManual } from './compValueManual/CompValueManual'
 
 // 자유게시판
 export { default as BoardListPage } from './freeBoard/BoardListPage'
+export { default as BoardViewPage } from './freeBoard/BoardViewPage'
 

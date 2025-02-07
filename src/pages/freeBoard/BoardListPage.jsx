@@ -125,7 +125,7 @@ function BoardListPage() {
     // 셀 클릭: 제목 셀 클릭 시 해당 행의 뷰 페이지로 이동
     const onCellClicked = (params) => {
         if (params.colDef.field === "title" && params.data) {
-            navigate(`/view/${params.data.id}`);
+            navigate(`/freeBoard/view/${params.data.id}`);
         }
     };
 
@@ -203,7 +203,7 @@ function BoardListPage() {
 
     return (
         <BoardContainer>
-            <Title>게시판 목록</Title>
+            <Title>자유게시판</Title>
             <div style={{ marginBottom: '16px' }}>
                 <input
                     type="text"
