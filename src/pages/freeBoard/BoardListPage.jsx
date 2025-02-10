@@ -220,7 +220,7 @@ function BoardListPage() {
                 <SearchButton onClick={handleSearch}>검색</SearchButton>
                 <ResetButton onClick={handleReset}>초기화</ResetButton>
                 <ButtonContainer style={{ marginTop: '8px' }}>
-                    <ActionButton onClick={() => navigate('/register')}>
+                    <ActionButton onClick={() => navigate('/freeBoard/view')}>
                         게시글 등록
                     </ActionButton>
                     <DeleteButton onClick={handleDeleteButtonClick}>
