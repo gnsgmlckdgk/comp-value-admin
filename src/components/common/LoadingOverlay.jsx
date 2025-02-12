@@ -36,8 +36,9 @@ const Spinner = styled.div`
  * @param {Object} props
  * @param {boolean} props.isLoadingFlag - 로딩 상태 플래그 (true이면 로딩 오버레이 표시)
  */
-const LoadingOverlay = ({ isLoadingFlag }) => {
-  if (!isLoadingFlag) return null; // isLoadingFlag가 false면 아무것도 렌더링하지 않음
+const LoadingOverlay = ({ isLoadingFlag = false }) => {
+
+  if (!isLoadingFlag) return (<></>);
 
   return (
     <Overlay>

@@ -9,6 +9,8 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill/dist/quill.snow.css'; // react-quill 스타일
 import 'react-quill/dist/quill.bubble.css'; // bubble 테마 스타일
 
+import { send } from '../../components/util/clientUtil';
+
 
 const StyledReactQuill = styled(ReactQuill)`
   /* 편집 영역의 테두리와 둥근 모서리 지정 */
@@ -55,15 +57,25 @@ function BoardRegisterPage() {
     const navigate = useNavigate();
 
     // 폼 제출 시 호출되는 함수
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         // TODO: 여기에 백엔드와 통신하는 로직을 추가하세요.
         // 예: axios.post('/api/boards', { title, author, content })
         // 이곳에 로딩창을 보여주는 코드를 삽입할 수 있습니다.
+        const sendUrl = window.location.hostname === "localhost"
+            ? "http://localhost:18080/dart/freeboard/regi"
+            : "/dart/freeboard/regi";
 
-        console.log('등록된 데이터:', { title, author, content });
-        alert('게시글이 등록되었습니다.');
+        const { data, error } = await send(sendUrl, { 'title': title, 'author': author, 'content': content }, "POST");
+        if (data) {
+            const { title, author, content } = data;
+            alert('게시글이 등록되었습니다.');
+        } else {
+            console.log("error", error);
+            alert(error);
+        }
+
         navigate('/freeBoard');
     };
 

@@ -1,12 +1,16 @@
 // File: components/BoardViewPage.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BoardContainer, Title } from './styles/styles';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
+import DOMPurify from 'dompurify';
+
+import { send } from '../../components/util/clientUtil';
+import LoadingOverlayComp from '../../components/common/LoadingOverlay';
+
 
 // BoardViewPage 전용 스타일 컴포넌트 추가
-
 const PostCard = styled.div`
   background-color: #f9f9f9;
   border: 1px solid #ddd;
@@ -74,6 +78,23 @@ const ActionButton = styled.button`
   }
 `;
 
+// 포멧 변경
+function formatTimestamp(timestamp) {
+  // Date 객체 생성 (문자열 형태의 타임스탬프를 파싱)
+  const date = new Date(timestamp);
+
+  // 년, 월, 일, 시, 분, 초를 추출 (월은 0부터 시작하므로 +1)
+  const yyyy = date.getFullYear();
+  const MM = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const HH = String(date.getHours()).padStart(2, '0');
+  const mm = String(date.getMinutes()).padStart(2, '0');
+  const ss = String(date.getSeconds()).padStart(2, '0');
+
+  // 포맷된 문자열 반환
+  return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}`;
+}
+
 // 백엔드 대신 사용할 샘플 데이터
 const sampleData = [
   { id: 1, title: '첫번째 게시글', author: '홍길동', date: '2025-01-01', content: '첫번째 게시글 내용입니다.' },
@@ -83,10 +104,48 @@ const sampleData = [
 
 function BoardViewPage() {
   const { id } = useParams();
+  const [post, setPost] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const getPost = async ({ id }) => {
+    const sendUrl = window.location.hostname === "localhost"
+      ? `http://localhost:18080/dart/freeboard/view/${id}`
+      : `/dart/freeboard/view/${id}`;
+
+    const { data, error } = await send(sendUrl, {});
+
+    if (data) {
+      // 데이터 변환
+      data.createdAt = formatTimestamp(data.createdAt);
+      data.updatedAt = formatTimestamp(data.updatedAt);
+
+      return data;
+
+    } else {
+      return {};
+    }
+  }
+
   // URL의 id와 일치하는 게시글 찾기
-  const post = sampleData.find(item => item.id === Number(id));
+  // const post = sampleData.find(item => item.id === Number(id));
+  useEffect(() => {
+    const fetchPost = async () => {
+      setIsLoading(true);
+      const fetchedPost = await getPost({ id });
+      setPost(fetchedPost);
+      setIsLoading(false);
+    };
+    if (id) {
+      fetchPost();
+    }
+  }, [id]); // [id] 값이 변경될때마다 useEffect가 실행됨
+
+  if (isLoading) {
+    // LoadingOverlayComp 컴포넌트를 로딩 상태일 때 보여줌
+    return <LoadingOverlayComp isLoadingFlag={isLoading} />;
+  }
+
 
   if (!post) {
     return (
@@ -121,10 +180,11 @@ function BoardViewPage() {
         <Title>{post.title}</Title>
         <MetaInfo>
           <div><strong>작성자:</strong> {post.author}</div>
-          <div><strong>작성일:</strong> {post.date}</div>
+          <div><strong>작성일:</strong> {post.createdAt}</div>
         </MetaInfo>
         <PostCard>
-          <ContentArea>{post.content}</ContentArea>
+          {/* XSS 방지(dangerouslySetInnerHTML: html 코드 해석출력, DOMpurify.santize: XSS 검증 */}
+          <ContentArea dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }} />
           <ViewButtonContainer>
             <EditButton onClick={() => navigate(`/freeBoard/edit/${post.id}`)}>수정</EditButton>
             <DeleteButton onClick={handleDelete}>삭제</DeleteButton>

@@ -1,20 +1,13 @@
 // File: components/BoardListPage.jsx
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { send } from '../../components/util/clientUtil';
 import {
     BoardContainer,
     Title,
     SearchButton,
     ResetButton,
     ButtonContainer,
-    FormWrapper,
-    FieldsGrid,
-    FormGroup,
-    ErrorText,
-    FullWidthFormGroup,
-    SubFieldsGrid,
-    SubFormGroup,
-    ResultContainer,
     PaginationContainer,
     PaginationButton,
     WarningMessage,
@@ -40,6 +33,8 @@ import { motion } from 'framer-motion';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import styled from 'styled-components';
+
+import LoadingOverlayComp from '../../components/common/LoadingOverlay';
 
 // 모듈 등록
 ModuleRegistry.registerModules([
@@ -80,7 +75,7 @@ const ReportNameRenderer = (params) => {
     );
 };
 
-// 샘플 데이터 생성 함수
+// 샘플 데이터 생성 함수 ---------
 const createSampleData = (cnt) =>
     Array.from({ length: cnt }, (_, index) => {
         const idx = index + 1;
@@ -91,7 +86,7 @@ const createSampleData = (cnt) =>
             date: '2025-01-01'
         };
     });
-const totalData = createSampleData(100);
+// ---------------------------------
 
 //@ 그리드 페이징 설정
 // enables pagination in the grid
@@ -103,17 +98,58 @@ const paginationPageSizeSelector = [10, 20, 50, 100];
 
 function BoardListPage() {
 
+    // const totalData = createSampleData(100);
+    // const totalData = loadData();
     const pageSize = 30;
 
     // 첫 페이지 데이터로 초기화
-    const [rowData, setRowData] = useState(totalData.slice(0, pageSize));
+    // const [rowData, setRowData] = useState(totalData.slice(0, pageSize));   // sample
+    const [rowData, setRowData] = useState([]);
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(Math.ceil(totalData.length / pageSize));
+    const [totalPages, setTotalPages] = useState(0);
     const [errorMsg, setErrorMsg] = useState('');
     const [showConfirm, setShowConfirm] = useState(false);
     const gridRef = useRef();
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+
+    // 컴포넌트 마운트 시 데이터 로드
+    // 렌더링 후
+    useEffect(() => {
+        const fetchData = async () => {
+            setIsLoading(true);
+            const data = await loadData();
+            setRowData(data);
+            setTotalPages(Math.ceil(data.length / pageSize));
+            setIsLoading(false);
+        };
+        fetchData();
+    }, [pageSize]);
+
+    const loadData = async (page = 0, pageSize = 30) => {
+
+        const sendUrl = window.location.hostname === "localhost"
+            ? `http://localhost:18080/dart/freeboard?page=${page}&size=${pageSize}`
+            : `/dart/freeboard?page=${page}&size=${pageSize}`;
+
+        setIsLoading(true);
+        const { data, error } = await send(sendUrl, {});
+        setIsLoading(false);
+
+        if (data && data.length > 0) {
+            return data;
+        } else {
+            return [];
+        }
+    };
+
+    // 페이지 변경: 백엔드 호출 대신 전체 데이터에서 slice (실제 구현 시 API 호출)
+    const fetchPage = async (page) => {
+        const pageData = await loadData(page);
+        setRowData(pageData);
+        setCurrentPage(page);
+    };
 
     const [columnDefs] = useState([
         { headerName: "ID", field: "id", sortable: true, filter: true, flex: 1 },
@@ -121,6 +157,13 @@ function BoardListPage() {
         { headerName: "작성자", field: "author", sortable: true, filter: true, flex: 2 },
         { headerName: "날짜", field: "date", sortable: true, filter: true, flex: 3 }
     ]);
+
+    // 내장 페이징은 AgGridReact에서 pagination={true}로 활성화됨
+    const rowSelection = useMemo(() => {
+        return {
+            mode: 'multiRow'
+        };
+    }, []);
 
     // 셀 클릭: 제목 셀 클릭 시 해당 행의 뷰 페이지로 이동
     const onCellClicked = (params) => {
@@ -130,8 +173,8 @@ function BoardListPage() {
     };
 
     // 검색: 전체 데이터에서 필터링 후 첫 페이지 데이터 설정
-    const handleSearch = () => {
-        const allData = totalData; // 실제 구현에서는 백엔드에서 검색 결과 받아오기
+    const handleSearch = async () => {
+        const allData = await loadData();
         if (searchText === '') {
             setRowData(allData.slice(0, pageSize));
             setCurrentPage(1);
@@ -149,9 +192,9 @@ function BoardListPage() {
     // 초기화: 검색어 및 데이터 리셋
     const handleReset = () => {
         setSearchText('');
-        setRowData(totalData.slice(0, pageSize));
+        setRowData(rowData.slice(0, pageSize));
         setCurrentPage(1);
-        setTotalPages(Math.ceil(totalData.length / pageSize));
+        setTotalPages(Math.ceil(rowData.length / pageSize));
         setErrorMsg('');
     };
 
@@ -171,7 +214,7 @@ function BoardListPage() {
     const confirmDelete = () => {
         const selectedNodes = gridRef.current.api.getSelectedNodes();
         const selectedData = selectedNodes.map(node => node.data);
-        const remainingData = totalData.filter(item => !selectedData.some(selected => selected.id === item.id));
+        const remainingData = rowData.filter(item => !selectedData.some(selected => selected.id === item.id));
         setRowData(remainingData.slice(0, pageSize));
         setTotalPages(Math.ceil(remainingData.length / pageSize));
         setCurrentPage(1);
@@ -183,23 +226,10 @@ function BoardListPage() {
         setShowConfirm(false);
     };
 
-    // 페이지 변경: 백엔드 호출 대신 전체 데이터에서 slice (실제 구현 시 API 호출)
-    const fetchPage = (page) => {
-        const start = (page - 1) * pageSize;
-        const end = page * pageSize;
-        const pageData = totalData.slice(start, end);
-        // setRowData(pageData);
-        // TODO: 백엔드 DB조회
-
-        setCurrentPage(page);
-    };
-
-    // 내장 페이징은 AgGridReact에서 pagination={true}로 활성화됨
-    const rowSelection = useMemo(() => {
-        return {
-            mode: 'multiRow'
-        };
-    }, []);
+    if (isLoading) {
+        // LoadingOverlayComp 컴포넌트를 로딩 상태일 때 보여줌
+        return <LoadingOverlayComp isLoadingFlag={isLoading} />;
+    }
 
     return (
         <BoardContainer>

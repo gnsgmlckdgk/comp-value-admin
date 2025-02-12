@@ -8,6 +8,9 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill/dist/quill.snow.css'; // react-quill 스타일
 import 'react-quill/dist/quill.bubble.css'; // bubble 테마 스타일
 
+import { send } from '../../components/util/clientUtil';
+
+
 const StyledReactQuill = styled(ReactQuill)`
   /* 편집 영역의 테두리와 둥근 모서리 지정 */
   .ql-container {
