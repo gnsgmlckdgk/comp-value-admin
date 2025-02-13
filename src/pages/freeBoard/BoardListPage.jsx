@@ -1,13 +1,12 @@
 // File: components/BoardListPage.jsx
 import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { send } from '../../components/util/clientUtil';
 import {
     BoardContainer,
     Title,
     SearchButton,
     ResetButton,
-    ButtonContainer,
     PaginationContainer,
     PaginationButton,
     WarningMessage,
@@ -17,7 +16,7 @@ import {
     ConfirmModalButtonContainer,
     ConfirmButton,
     CancelButton
-} from './styles/styles'; // 경로는 프로젝트 구조에 따라 조정하세요.
+} from './styles/styles';
 import { AgGridReact } from 'ag-grid-react';
 import {
     ModuleRegistry,
@@ -47,7 +46,7 @@ ModuleRegistry.registerModules([
     DateFilterModule
 ]);
 
-// 추가: ActionButton 스타일 컴포넌트 (버튼 디자인 개선)
+// 추가: ActionButton 스타일 컴포넌트
 const ActionButton = styled.button`
   padding: 8px 16px;
   border: none;
@@ -61,7 +60,7 @@ const ActionButton = styled.button`
   }
 `;
 
-// 삭제 버튼용 DeleteButton (빨간색 계열)
+// 삭제 버튼용 DeleteButton
 const DeleteButton = styled(ActionButton)`
   background: linear-gradient(135deg, #dc3545, #c82333);
 `;
@@ -75,7 +74,7 @@ const ReportNameRenderer = (params) => {
     );
 };
 
-// 샘플 데이터 생성 함수 ---------
+// 샘플 데이터 생성 함수 (필요시 사용)
 const createSampleData = (cnt) =>
     Array.from({ length: cnt }, (_, index) => {
         const idx = index + 1;
@@ -89,24 +88,28 @@ const createSampleData = (cnt) =>
 // ---------------------------------
 
 //@ 그리드 페이징 설정
-// enables pagination in the grid
 const pagination = true;
-// sets 10 rows per page (default is 100)
 const paginationPageSize = 10;
-// allows the user to select the page size from a predefined list of page sizes
 const paginationPageSizeSelector = [10, 20, 50, 100];
 
-function BoardListPage() {
+const BoardListPage = () => {
 
-    // const totalData = createSampleData(100);
-    // const totalData = loadData();
+    const location = useLocation();
+
+    // 전달된 state가 있다면 초기값으로 사용, 없다면 기본값 사용
+    // ex) currentPage 값이 있으면 그 값으로 initialCurPage 설정, 없으면 기본값 설정
+    const {
+        currentPage: initialCurPage = 1,
+        sgubun: initialSgubun = "0",
+        searchText: initialSearchText = ""
+    } = location.state || {};
+
     const pageSize = 30;
-
-    // 첫 페이지 데이터로 초기화
-    // const [rowData, setRowData] = useState(totalData.slice(0, pageSize));   // sample
     const [rowData, setRowData] = useState([]);
-    const [searchText, setSearchText] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
+    const [searchText, setSearchText] = useState(initialSearchText);
+    // sgubun 상태 추가 (검색종류: "0" 전체, "1" 제목, "2" 작성자, "3" 내용 등)
+    const [sgubun, setSgubun] = useState(initialSgubun);
+    const [currentPage, setCurrentPage] = useState(initialCurPage);
     const [totalPages, setTotalPages] = useState(0);
     const [errorMsg, setErrorMsg] = useState('');
     const [showConfirm, setShowConfirm] = useState(false);
@@ -114,24 +117,11 @@ function BoardListPage() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
 
-    // 컴포넌트 마운트 시 데이터 로드
-    // 렌더링 후
-    useEffect(() => {
-        const fetchData = async () => {
-            setIsLoading(true);
-            const data = await loadData();
-            setRowData(data);
-            setTotalPages(Math.ceil(data.length / pageSize));
-            setIsLoading(false);
-        };
-        fetchData();
-    }, [pageSize]);
-
-    const loadData = async (page = 0, pageSize = 30) => {
-
+    // loadData 함수: search와 sgubun 값을 인자로 받아 사용
+    const loadData = async (page = 0, pageSize = 30, search = "", sgubun = "0") => {
         const sendUrl = window.location.hostname === "localhost"
-            ? `http://localhost:18080/dart/freeboard?page=${page}&size=${pageSize}`
-            : `/dart/freeboard?page=${page}&size=${pageSize}`;
+            ? `http://localhost:18080/dart/freeboard?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`
+            : `/dart/freeboard?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`;
 
         setIsLoading(true);
         const { data, error } = await send(sendUrl, {});
@@ -144,9 +134,22 @@ function BoardListPage() {
         }
     };
 
-    // 페이지 변경: 백엔드 호출 대신 전체 데이터에서 slice (실제 구현 시 API 호출)
+    // 컴포넌트 마운트 시 첫 페이지 데이터 로드
+    useEffect(() => {
+        const fetchData = async () => {
+            const data = await loadData(0, pageSize, searchText, sgubun);
+            setRowData(data);
+            setTotalPages(Math.ceil(data.length / pageSize));
+        };
+        fetchData();
+        // }, [pageSize, searchText, sgubun]);
+    }, [pageSize]);
+
+    const rowSelection = useMemo(() => ({ mode: 'multiRow' }), []);
+
+    // 페이지 변경 함수
     const fetchPage = async (page) => {
-        const pageData = await loadData(page);
+        const pageData = await loadData(page, pageSize, searchText, sgubun);
         setRowData(pageData);
         setCurrentPage(page);
     };
@@ -158,40 +161,31 @@ function BoardListPage() {
         { headerName: "날짜", field: "date", sortable: true, filter: true, flex: 3 }
     ]);
 
-    // 내장 페이징은 AgGridReact에서 pagination={true}로 활성화됨
-    const rowSelection = useMemo(() => {
-        return {
-            mode: 'multiRow'
-        };
-    }, []);
-
-    // 셀 클릭: 제목 셀 클릭 시 해당 행의 뷰 페이지로 이동
+    // 셀 클릭: 제목 셀 클릭 시 뷰 페이지 이동
     const onCellClicked = (params) => {
         if (params.colDef.field === "title" && params.data) {
-            navigate(`/freeBoard/view/${params.data.id}`);
+            navigate(`/freeBoard/view/${params.data.id}`, {
+                state: {
+                    currentPage: currentPage,
+                    sgubun: sgubun,
+                    searchText: searchText
+                }
+            });
         }
     };
 
-    // 검색: 전체 데이터에서 필터링 후 첫 페이지 데이터 설정
+    // 검색 함수: searchText와 sgubun 값을 loadData에 전달
     const handleSearch = async () => {
-        const allData = await loadData();
-        if (searchText === '') {
-            setRowData(allData.slice(0, pageSize));
-            setCurrentPage(1);
-            setTotalPages(Math.ceil(allData.length / pageSize));
-        } else {
-            const filteredData = allData.filter(item =>
-                item.title.includes(searchText) || item.author.includes(searchText)
-            );
-            setRowData(filteredData.slice(0, pageSize));
-            setCurrentPage(1);
-            setTotalPages(Math.ceil(filteredData.length / pageSize));
-        }
+        const data = await loadData(0, pageSize, searchText, sgubun);
+        setRowData(data.slice(0, pageSize));
+        setCurrentPage(1);
+        setTotalPages(Math.ceil(data.length / pageSize));
     };
 
-    // 초기화: 검색어 및 데이터 리셋
+    // 초기화 함수: 검색어와 sgubun 리셋
     const handleReset = () => {
         setSearchText('');
+        setSgubun('0');
         setRowData(rowData.slice(0, pageSize));
         setCurrentPage(1);
         setTotalPages(Math.ceil(rowData.length / pageSize));
@@ -227,7 +221,6 @@ function BoardListPage() {
     };
 
     if (isLoading) {
-        // LoadingOverlayComp 컴포넌트를 로딩 상태일 때 보여줌
         return <LoadingOverlayComp isLoadingFlag={isLoading} />;
     }
 
@@ -235,28 +228,47 @@ function BoardListPage() {
         <BoardContainer>
             <Title>자유게시판</Title>
             <div style={{ marginBottom: '16px' }}>
-                <input
-                    type="text"
-                    placeholder="검색어 입력"
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                    style={{
-                        padding: '8px',
-                        border: '1px solid #ccc',
-                        borderRadius: '4px',
-                        marginRight: '8px'
-                    }}
-                />
-                <SearchButton onClick={handleSearch}>검색</SearchButton>
-                <ResetButton onClick={handleReset}>초기화</ResetButton>
-                <ButtonContainer style={{ marginTop: '8px' }}>
+                {/* 상단 검색 및 옵션 영역 */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <select
+                        value={sgubun}
+                        onChange={(e) => setSgubun(e.target.value)}
+                        style={{
+                            padding: '8px',
+                            border: '1px solid #ccc',
+                            borderRadius: '4px'
+                        }}
+                    >
+                        <option value="0">전체</option>
+                        <option value="1">제목</option>
+                        <option value="2">작성자</option>
+                        <option value="3">내용</option>
+                        <option value="4">제목, 내용</option>
+                    </select>
+                    <input
+                        type="text"
+                        placeholder="검색어 입력"
+                        value={searchText}
+                        onChange={(e) => setSearchText(e.target.value)}
+                        style={{
+                            padding: '8px',
+                            border: '1px solid #ccc',
+                            borderRadius: '4px',
+                            flexGrow: 1
+                        }}
+                    />
+                    <SearchButton onClick={handleSearch}>검색</SearchButton>
+                    <ResetButton onClick={handleReset}>초기화</ResetButton>
+                </div>
+                {/* 버튼 영역 (게시글 등록, 선택 삭제) */}
+                <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
                     <ActionButton onClick={() => navigate('/freeBoard/view')}>
                         게시글 등록
                     </ActionButton>
                     <DeleteButton onClick={handleDeleteButtonClick}>
                         선택 삭제
                     </DeleteButton>
-                </ButtonContainer>
+                </div>
                 {errorMsg && <WarningMessage>{errorMsg}</WarningMessage>}
             </div>
             {/* AG-Grid 영역: 내장 페이징 활성화 */}
@@ -274,7 +286,7 @@ function BoardListPage() {
                     defaultColDef={{ flex: 1, resizable: true }}
                     rowSelection={rowSelection}
                     onCellClicked={onCellClicked}
-                    pagination={pagination}  // 내장 페이징 활성화
+                    pagination={pagination}
                     paginationPageSize={paginationPageSize}
                     paginationPageSizeSelector={paginationPageSizeSelector}
                     onPaginationChanged={() => {

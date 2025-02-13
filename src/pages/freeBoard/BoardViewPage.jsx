@@ -1,6 +1,6 @@
 // File: components/BoardViewPage.jsx
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { BoardContainer, Title } from './styles/styles';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
@@ -102,7 +102,16 @@ const sampleData = [
   { id: 3, title: '세번째 게시글', author: '이영희', date: '2025-01-03', content: '세번째 게시글 내용입니다.' },
 ];
 
-function BoardViewPage() {
+const BoardViewPage = () => {
+
+  // navigate 로 전송한 객체는 useLocation() 으로만 받음
+  const location = useLocation();
+  const {
+    currentPage = 1,
+    sgubun = "0",
+    searchText = ""
+  } = location.state || {};
+
   const { id } = useParams();
   const [post, setPost] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -191,7 +200,9 @@ function BoardViewPage() {
           </ViewButtonContainer>
         </PostCard>
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <ActionButton onClick={() => navigate('/freeBoard')}>뒤로가기</ActionButton>
+          <ActionButton onClick={() => navigate('/freeBoard',
+            { 'state': { 'currentPage': currentPage, 'sgubun': sgubun, 'searchText': searchText } }
+          )}>뒤로가기</ActionButton>
         </div>
       </motion.div>
     </BoardContainer>
