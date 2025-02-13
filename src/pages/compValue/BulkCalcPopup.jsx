@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import LoadingOverlayComp from '../../components/common/LoadingOverlay';
+import LoadingOverlayComp from '../../components/common/ui/LoadingOverlay';
 import { send } from '../../components/util/clientUtil';
 import * as XLSX from 'xlsx'; // default export 없이 전체 import
 

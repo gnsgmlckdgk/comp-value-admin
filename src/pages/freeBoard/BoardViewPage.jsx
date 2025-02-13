@@ -1,4 +1,3 @@
-// File: components/BoardViewPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { BoardContainer, Title } from './styles/styles';
@@ -7,7 +6,7 @@ import styled from 'styled-components';
 import DOMPurify from 'dompurify';
 
 import { send } from '../../components/util/clientUtil';
-import LoadingOverlayComp from '../../components/common/LoadingOverlay';
+import LoadingOverlayComp from '../../components/common/ui/LoadingOverlay';
 
 
 // BoardViewPage 전용 스타일 컴포넌트 추가

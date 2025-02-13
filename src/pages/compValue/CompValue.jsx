@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 // 기존 컴포넌트들
-import LoadingOverlayComp from '../../components/common/LoadingOverlay';
+import LoadingOverlayComp from '../../components/common/ui/LoadingOverlay';
 import { send } from '../../components/util/clientUtil';
 import DetailsToggle from './DetailCompValue';
 

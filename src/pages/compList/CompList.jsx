@@ -8,7 +8,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 import { send } from '../../components/util/clientUtil';
-import LoadingOverlayComp from '../../components/common/LoadingOverlay';
+import LoadingOverlayComp from '../../components/common/ui/LoadingOverlay';
 
 
 ModuleRegistry.registerModules([

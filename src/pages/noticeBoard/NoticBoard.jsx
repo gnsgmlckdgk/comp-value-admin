@@ -8,7 +8,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 // 로딩 오버레이 (선택)
-import LoadingOverlayComp from '../../components/common/LoadingOverlay';
+import LoadingOverlayComp from '../../components/common/ui/LoadingOverlay';
 
 // 서버 통신 함수 (가정)
 import { send, asyncSend } from '../../components/util/clientUtil';
