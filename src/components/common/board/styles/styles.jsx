@@ -249,6 +249,19 @@ export const ActionButton = styled.button`
   }
 `;
 
+export const EditButton = styled.button`
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #17a2b8, #117a8b);
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  &:hover {
+    opacity: 0.9;
+  }
+`;
+
 // 삭제 버튼용 DeleteButton
 export const DeleteButton = styled(ActionButton)`
   background: linear-gradient(135deg, #dc3545, #c82333);

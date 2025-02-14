@@ -1,0 +1,36 @@
+name: Build and Push Docker Image to GHCR
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # (1) 깃 리포지토리 체크아웃
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      # (2) GHCR에 로그인
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+        # * GitHub Actions -> Settings -> Actions -> General -> Workflow permissions
+        #   에서 'Read and write permissions'로 설정 필요
+
+      # 3) 도커 이미지 빌드
+      #    - Dockerfile이 루트 경로에 있다고 가정
+      #    - 만약 하위 디렉토리에 있다면 -f ./frontend/Dockerfile 처럼 경로를 바꿔줄 수 있음
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -f ./docker/Dockerfile \
+            -t ghcr.io/${{ github.repository }}:latest \
+
+      # (4) GHCR로 push
+      - name: Push Docker Image
+        run: |
+          docker push ghcr.io/${{ github.repository }}:latest
