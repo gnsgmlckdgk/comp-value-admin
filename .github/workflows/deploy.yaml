@@ -25,7 +25,7 @@ jobs:
       #    - Dockerfile이 루트 경로에 있다고 가정
       #    - 만약 하위 디렉토리에 있다면 -f ./frontend/Dockerfile 처럼 경로를 바꿔줄 수 있음
       - name: Build Docker Image
-        run:  docker build -f ./docker/Dockerfile -t ghcr.io/gnsgmlckdgk/comp-value-admin:latest .
+        run:  docker build -f /docker/Dockerfile -t ghcr.io/gnsgmlckdgk/comp-value-admin:latest .
 
       # (4) GHCR로 push
       - name: Push Docker Image
