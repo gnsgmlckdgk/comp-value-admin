@@ -1,14 +1,28 @@
-import React, { useState, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { send } from '../../components/util/clientUtil';
-import { BoardContainer, Title, ActionButton, WarningMessage, DeleteButton } from '../../components/common/board/styles/styles';
+import {
+    BoardContainer,
+    Title,
+    ActionButton,
+    WarningMessage,
+    DeleteButton,
+} from '../../components/common/board/styles/styles';
 import SearchBar from '../../components/common/board/SearchBar';
 import BoardGrid from '../../components/common/board/BoardGrid';
 import PaginationControls from '../../components/common/board/PaginationControls';
 import ConfirmModal from '../../components/common/board/ConfirmModal';
 import LoadingOverlayComp from '../../components/common/ui/LoadingOverlay';
-import { ModuleRegistry, RowSelectionModule, ClientSideRowModelModule, ValidationModule, PaginationModule, TextFilterModule, NumberFilterModule, DateFilterModule } from 'ag-grid-community';
-import { motion } from 'framer-motion';
+import {
+    ModuleRegistry,
+    RowSelectionModule,
+    ClientSideRowModelModule,
+    ValidationModule,
+    PaginationModule,
+    TextFilterModule,
+    NumberFilterModule,
+    DateFilterModule,
+} from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
@@ -19,20 +33,21 @@ ModuleRegistry.registerModules([
     PaginationModule,
     TextFilterModule,
     NumberFilterModule,
-    DateFilterModule
+    DateFilterModule,
 ]);
 
-//@ 그리드 페이징 설정
+// 그리드 페이징 설정
 const pagination = true;
 const paginationPageSize = 10;
 const paginationPageSizeSelector = [10, 20, 50, 100];
 
 const BoardListPage = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const {
         currentPage: initialCurPage = 1,
-        sgubun: initialSgubun = "0",
-        searchText: initialSearchText = ""
+        sgubun: initialSgubun = '0',
+        searchText: initialSearchText = '',
     } = location.state || {};
 
     const pageSize = 30;
@@ -45,22 +60,24 @@ const BoardListPage = () => {
     const [showConfirm, setShowConfirm] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const gridRef = useRef();
-    const navigate = useNavigate();
 
-    // loadData 함수
-    const loadData = async (page = 0, pageSize = 30, search = "", sgubun = "0") => {
-        const sendUrl = window.location.hostname === "localhost"
-            ? `http://localhost:18080/dart/freeboard?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`
-            : `/dart/freeboard?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`;
+    // 데이터 로드 함수
+    const loadData = useCallback(
+        async (page = 0, pageSize = 30, search = '', sgubun = '0') => {
+            const sendUrl =
+                window.location.hostname === 'localhost'
+                    ? `http://localhost:18080/dart/freeboard?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`
+                    : `/dart/freeboard?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`;
 
-        setIsLoading(true);
-        const { data, error } = await send(sendUrl, {});
-        setIsLoading(false);
+            setIsLoading(true);
+            const { data } = await send(sendUrl, {});
+            setIsLoading(false);
+            return data && data.length > 0 ? data : [];
+        },
+        []
+    );
 
-        return data && data.length > 0 ? data : [];
-    };
-
-    // 데이터 로드: 컴포넌트 마운트 시
+    // 컴포넌트 마운트 시 데이터 로드 (원래 [pageSize]만 의존)
     useEffect(() => {
         const fetchData = async () => {
             const data = await loadData(0, pageSize, searchText, sgubun);
@@ -68,43 +85,51 @@ const BoardListPage = () => {
             setTotalPages(Math.ceil(data.length / pageSize));
         };
         fetchData();
-        // }, [pageSize, searchText, sgubun]);
-    }, [pageSize]);
+    }, [pageSize, loadData]); // 원래는 [pageSize]만 사용했음
 
     const rowSelection = useMemo(() => ({ mode: 'multiRow' }), []);
 
-    // 페이지 변경 함수
-    const fetchPage = async (page) => {
-        const pageData = await loadData(page, pageSize, searchText, sgubun);
-        setRowData(pageData);
-        setCurrentPage(page);
-    };
+    // 페이지 변경 핸들러
+    const fetchPage = useCallback(
+        async (page) => {
+            const pageData = await loadData(page, pageSize, searchText, sgubun);
+            setRowData(pageData);
+            setCurrentPage(page);
+        },
+        [loadData, pageSize, searchText, sgubun]
+    );
 
-    const [columnDefs] = useState([
-        { headerName: "ID", field: "id", sortable: true, filter: true, flex: 1 },
-        { headerName: "제목", field: "title", sortable: true, filter: true, flex: 5 },
-        { headerName: "작성자", field: "author", sortable: true, filter: true, flex: 2 },
-        { headerName: "날짜", field: "date", sortable: true, filter: true, flex: 3 }
-    ]);
+    // 컬럼 정의 (상수이므로 useMemo 사용)
+    const columnDefs = useMemo(
+        () => [
+            { headerName: 'ID', field: 'id', sortable: true, filter: true, flex: 1 },
+            { headerName: '제목', field: 'title', sortable: true, filter: true, flex: 5 },
+            { headerName: '작성자', field: 'author', sortable: true, filter: true, flex: 2 },
+            { headerName: '날짜', field: 'date', sortable: true, filter: true, flex: 3 },
+        ],
+        []
+    );
 
-    // 검색, 초기화, 삭제 등 이벤트 핸들러
-    const handleSearch = async () => {
+    // 검색 핸들러
+    const handleSearch = useCallback(async () => {
         const data = await loadData(0, pageSize, searchText, sgubun);
         setRowData(data.slice(0, pageSize));
         setCurrentPage(1);
         setTotalPages(Math.ceil(data.length / pageSize));
-    };
+    }, [loadData, pageSize, searchText, sgubun]);
 
-    const handleReset = () => {
+    // 초기화 핸들러
+    const handleReset = useCallback(() => {
         setSearchText('');
         setSgubun('0');
         setRowData(rowData.slice(0, pageSize));
         setCurrentPage(1);
         setTotalPages(Math.ceil(rowData.length / pageSize));
         setErrorMsg('');
-    };
+    }, [rowData, pageSize]);
 
-    const handleDeleteButtonClick = () => {
+    // 삭제 버튼 클릭 핸들러
+    const handleDeleteButtonClick = useCallback(() => {
         if (!gridRef.current || !gridRef.current.api) return;
         const selectedNodes = gridRef.current.api.getSelectedNodes();
         if (selectedNodes.length === 0) {
@@ -113,34 +138,40 @@ const BoardListPage = () => {
             setErrorMsg('');
             setShowConfirm(true);
         }
-    };
+    }, []);
 
-    const confirmDelete = () => {
+    // 삭제 확인 핸들러
+    const confirmDelete = useCallback(() => {
         const selectedNodes = gridRef.current.api.getSelectedNodes();
-        const selectedData = selectedNodes.map(node => node.data);
-        const remainingData = rowData.filter(item => !selectedData.some(selected => selected.id === item.id));
+        const selectedData = selectedNodes.map((node) => node.data);
+        const remainingData = rowData.filter(
+            (item) => !selectedData.some((selected) => selected.id === item.id)
+        );
         setRowData(remainingData.slice(0, pageSize));
         setTotalPages(Math.ceil(remainingData.length / pageSize));
         setCurrentPage(1);
         setShowConfirm(false);
-    };
+    }, [rowData, pageSize]);
 
-    const cancelDelete = () => {
+    const cancelDelete = useCallback(() => {
         setShowConfirm(false);
-    };
+    }, []);
 
-    // 셀 클릭: 제목 셀 클릭 시 뷰 페이지 이동
-    const onCellClicked = (params) => {
-        if (params.colDef.field === "title" && params.data) {
-            navigate(`/freeBoard/view/${params.data.id}`, {
-                state: {
-                    currentPage: currentPage,
-                    sgubun: sgubun,
-                    searchText: searchText
-                }
-            });
-        }
-    };
+    // 셀 클릭 핸들러 (제목 클릭 시 상세보기 페이지로 이동)
+    const onCellClicked = useCallback(
+        (params) => {
+            if (params.colDef.field === 'title' && params.data) {
+                navigate(`/freeBoard/view/${params.data.id}`, {
+                    state: {
+                        currentPage,
+                        sgubun,
+                        searchText,
+                    },
+                });
+            }
+        },
+        [navigate, currentPage, sgubun, searchText]
+    );
 
     if (isLoading) {
         return <LoadingOverlayComp isLoadingFlag={isLoading} />;
@@ -157,14 +188,9 @@ const BoardListPage = () => {
                 onSearch={handleSearch}
                 onReset={handleReset}
             />
-            {/* 버튼 영역 (게시글 등록, 선택 삭제) */}
             <div style={{ display: 'flex', gap: '16px', marginTop: '8px', marginBottom: '8px' }}>
-                <ActionButton onClick={() => navigate('/freeBoard/view')}>
-                    게시글 등록
-                </ActionButton>
-                <DeleteButton onClick={handleDeleteButtonClick}>
-                    선택 삭제
-                </DeleteButton>
+                <ActionButton onClick={() => navigate('/freeBoard/view')}>게시글 등록</ActionButton>
+                <DeleteButton onClick={handleDeleteButtonClick}>선택 삭제</DeleteButton>
             </div>
             {errorMsg && <WarningMessage>{errorMsg}</WarningMessage>}
             <BoardGrid
@@ -183,12 +209,7 @@ const BoardListPage = () => {
                 paginationPageSizeSelector={paginationPageSizeSelector}
                 onCellClicked={onCellClicked}
             />
-            {/* 커스텀 페이징 컨트롤 */}
-            <PaginationControls
-                totalPages={totalPages}
-                currentPage={currentPage}
-                onPageChange={fetchPage}
-            />
+            <PaginationControls totalPages={totalPages} currentPage={currentPage} onPageChange={fetchPage} />
             {showConfirm && (
                 <ConfirmModal
                     onConfirm={confirmDelete}
