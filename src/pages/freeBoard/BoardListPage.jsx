@@ -46,7 +46,7 @@ const BoardListPage = () => {
     const navigate = useNavigate();
     const {
         currentPage: initialCurPage = 1,
-        sgubun: initialSgubun = '0',
+        sgubun: initialSgubun = '1',
         searchText: initialSearchText = '',
     } = location.state || {};
 
@@ -72,18 +72,33 @@ const BoardListPage = () => {
             setIsLoading(true);
             const { data } = await send(sendUrl, {});
             setIsLoading(false);
-            return data && data.length > 0 ? data : [];
+
+            if (data.data && data.data.length > 0) {
+                return {
+                    data: data.data,
+                    total: data.total || data.data.length,
+                };
+            } else {
+                return { data: [], total: 0 };
+            }
+
         },
         []
     );
 
+    const fetchData = async (selPage) => {
+        const response = await loadData(selPage ? selPage : 0, pageSize, searchText, sgubun);
+        setRowData(response.data);
+        setTotalPages(Math.ceil(response.total / pageSize));
+    };
+
     // 컴포넌트 마운트 시 데이터 로드 (원래 [pageSize]만 의존)
     useEffect(() => {
-        const fetchData = async () => {
-            const data = await loadData(0, pageSize, searchText, sgubun);
-            setRowData(data);
-            setTotalPages(Math.ceil(data.length / pageSize));
-        };
+        // const fetchData = async () => {
+        //     const response = await loadData(0, pageSize, searchText, sgubun);
+        //     setRowData(response.data);
+        //     setTotalPages(Math.ceil(response.total / pageSize));
+        // };
         fetchData();
     }, [pageSize, loadData]); // 원래는 [pageSize]만 사용했음
 
@@ -92,8 +107,8 @@ const BoardListPage = () => {
     // 페이지 변경 핸들러
     const fetchPage = useCallback(
         async (page) => {
-            const pageData = await loadData(page, pageSize, searchText, sgubun);
-            setRowData(pageData);
+            const response = await loadData(page - 1, pageSize, searchText, sgubun);
+            setRowData(response.data);
             setCurrentPage(page);
         },
         [loadData, pageSize, searchText, sgubun]
@@ -112,10 +127,10 @@ const BoardListPage = () => {
 
     // 검색 핸들러
     const handleSearch = useCallback(async () => {
-        const data = await loadData(0, pageSize, searchText, sgubun);
-        setRowData(data.slice(0, pageSize));
+        const response = await loadData(0, pageSize, searchText, sgubun);
+        setRowData(response.data.slice(0, pageSize));
         setCurrentPage(1);
-        setTotalPages(Math.ceil(data.length / pageSize));
+        setTotalPages(Math.ceil(response.total / pageSize));
     }, [loadData, pageSize, searchText, sgubun]);
 
     // 초기화 핸들러
@@ -130,8 +145,10 @@ const BoardListPage = () => {
 
     // 삭제 버튼 클릭 핸들러
     const handleDeleteButtonClick = useCallback(() => {
+
         if (!gridRef.current || !gridRef.current.api) return;
         const selectedNodes = gridRef.current.api.getSelectedNodes();
+
         if (selectedNodes.length === 0) {
             setErrorMsg('삭제할 게시물이 선택되지 않았습니다.');
         } else {
@@ -141,21 +158,36 @@ const BoardListPage = () => {
     }, []);
 
     // 삭제 확인 핸들러
-    const confirmDelete = useCallback(() => {
+    const confirmDelete = useCallback(async () => {
         const selectedNodes = gridRef.current.api.getSelectedNodes();
-        const selectedData = selectedNodes.map((node) => node.data);
-        const remainingData = rowData.filter(
-            (item) => !selectedData.some((selected) => selected.id === item.id)
-        );
-        setRowData(remainingData.slice(0, pageSize));
-        setTotalPages(Math.ceil(remainingData.length / pageSize));
-        setCurrentPage(1);
+        await deleteProc(selectedNodes);
+        fetchData(currentPage - 1);
+
         setShowConfirm(false);
     }, [rowData, pageSize]);
 
     const cancelDelete = useCallback(() => {
         setShowConfirm(false);
     }, []);
+
+
+    const deleteProc = async (selectedNodes) => {
+        setIsLoading(true);
+        // 병렬처리
+        await Promise.all(
+            selectedNodes.map(element => {
+                const id = element.data.id;
+                const sendUrl =
+                    window.location.hostname === 'localhost'
+                        ? `http://localhost:18080/dart/freeboard/delete/${id}`
+                        : `/dart/freeboard/delete/${id}`;
+                return send(sendUrl, {}, 'DELETE');
+            })
+        );
+        alert("삭제되었습니다.");
+        setIsLoading(false);
+    }
+
 
     // 셀 클릭 핸들러 (제목 클릭 시 상세보기 페이지로 이동)
     const onCellClicked = useCallback(
@@ -172,6 +204,39 @@ const BoardListPage = () => {
         },
         [navigate, currentPage, sgubun, searchText]
     );
+
+
+    // 테스트: 게시글 20건 한 번에 등록하는 함수
+    const handleBulkRegister = useCallback(async () => {
+        const registerUrl =
+            window.location.hostname === 'localhost'
+                ? `http://localhost:18080/dart/freeboard/regi`
+                : `/dart/freeboard/regi`;
+        setIsLoading(true);
+        try {
+            for (let i = 1; i <= 20; i++) {
+                await send(
+                    registerUrl,
+                    {
+                        title: `Test Post ${i}`,
+                        author: 'Tester',
+                        content: `This is the content for test post number ${i}`,
+                    },
+                    'POST'
+                );
+            }
+            // 등록 후 데이터를 다시 불러오기
+            const response = await loadData(0, pageSize, searchText, sgubun);
+            setRowData(response.data);
+            setTotalPages(Math.ceil(response.total / pageSize));
+            setCurrentPage(1);
+        } catch (error) {
+            console.error('Bulk registration error:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [loadData, pageSize, searchText, sgubun]);
+
 
     if (isLoading) {
         return <LoadingOverlayComp isLoadingFlag={isLoading} />;
@@ -191,9 +256,11 @@ const BoardListPage = () => {
             <div style={{ display: 'flex', gap: '16px', marginTop: '8px', marginBottom: '8px' }}>
                 <ActionButton onClick={() => navigate('/freeBoard/view')}>게시글 등록</ActionButton>
                 <DeleteButton onClick={handleDeleteButtonClick}>선택 삭제</DeleteButton>
+                <ActionButton onClick={handleBulkRegister}>테스트 20건 등록</ActionButton>
             </div>
             {errorMsg && <WarningMessage>{errorMsg}</WarningMessage>}
             <BoardGrid
+                ref={gridRef}
                 rowData={rowData}
                 columnDefs={columnDefs}
                 rowSelection={rowSelection}

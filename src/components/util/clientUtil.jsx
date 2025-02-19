@@ -34,6 +34,12 @@ export const send = async (url, params, method = "GET") => {
             response = await axios.post(url, params, {
                 headers: { 'Content-Type': 'application/json' }
             });
+        } else if (method === "PUT") {
+            response = await axios.put(url, params, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+        } else if (method === "DELETE") {
+            response = await axios.delete(url, { params });
         } else {
             response = await axios.get(url, { params });
         }

@@ -7,6 +7,8 @@ import DOMPurify from 'dompurify';
 
 import { send } from '../../components/util/clientUtil';
 import LoadingOverlayComp from '../../components/common/ui/LoadingOverlay';
+import { formatTimestamp } from '../../components/util/DateUtil';
+
 
 const PostCard = styled.div`
   background-color: #f9f9f9;
@@ -75,17 +77,6 @@ const ActionButton = styled.button`
   }
 `;
 
-const formatTimestamp = (timestamp) => {
-  const date = new Date(timestamp);
-  const yyyy = date.getFullYear();
-  const MM = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
-  const HH = String(date.getHours()).padStart(2, '0');
-  const mm = String(date.getMinutes()).padStart(2, '0');
-  const ss = String(date.getSeconds()).padStart(2, '0');
-  return `${yyyy}-${MM}-${dd} ${HH}:${mm}:${ss}`;
-};
-
 const BoardViewPage = () => {
   // location.state로 전달된 값 (없으면 기본값 사용)
   const { currentPage = 1, sgubun = '0', searchText = '' } = useLocation().state || {};
@@ -133,10 +124,27 @@ const BoardViewPage = () => {
     fetchPost();
   }, [id, getPost]);
 
-  const handleDelete = useCallback(() => {
+  const handleDelete = useCallback(async () => {
     if (window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
       // 실제 삭제 API 호출 로직 추가 가능
-      navigate(-1);
+      const sendUrl =
+        window.location.hostname === 'localhost'
+          ? `http://localhost:18080/dart/freeboard/delete/${id}`
+          : `/dart/freeboard/delete/${id}`;
+
+      setIsLoading(true);
+      await send(sendUrl, {}, 'DELETE');
+      alert("삭제되었습니다.");
+      setIsLoading(false);
+
+      // navigate(-1);
+      navigate(`/freeBoard`, {
+        state: {
+          currentPage,
+          sgubun,
+          searchText
+        }
+      });
     }
   }, [navigate]);
 
@@ -181,7 +189,13 @@ const BoardViewPage = () => {
             dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
           />
           <ViewButtonContainer>
-            <EditButton onClick={() => navigate(`/freeBoard/edit/${post.id}`)}>
+            <EditButton onClick={() => navigate(`/freeBoard/edit/${post.id}`, {
+              state: {
+                currentPage,
+                sgubun,
+                searchText
+              }
+            })}>
               수정
             </EditButton>
             <DeleteButton onClick={handleDelete}>삭제</DeleteButton>

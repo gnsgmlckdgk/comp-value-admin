@@ -1,10 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { forwardRef } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import { motion } from 'framer-motion';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
-const BoardGrid = ({ rowData, columnDefs, rowSelection, onCellClicked, onPaginationChanged, pagination, paginationPageSize, paginationPageSizeSelector }) => {
+const BoardGrid = forwardRef((props, ref) => {
+
+    const { rowData, columnDefs, rowSelection, onCellClicked, onPaginationChanged, pagination, paginationPageSize, paginationPageSizeSelector } = props;
+
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -14,6 +17,7 @@ const BoardGrid = ({ rowData, columnDefs, rowSelection, onCellClicked, onPaginat
             style={{ height: '500px', width: '100%' }}
         >
             <AgGridReact
+                ref={ref}
                 rowData={rowData}
                 columnDefs={columnDefs}
                 defaultColDef={{ flex: 1, resizable: true }}
@@ -26,6 +30,6 @@ const BoardGrid = ({ rowData, columnDefs, rowSelection, onCellClicked, onPaginat
             />
         </motion.div>
     );
-};
+});
 
 export default BoardGrid;

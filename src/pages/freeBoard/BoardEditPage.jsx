@@ -1,10 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import ReactQuill from 'react-quill-new';
 import 'react-quill/dist/quill.snow.css';
 import 'react-quill/dist/quill.bubble.css';
+import { send } from '../../components/util/clientUtil';
+
+import { formatTimestamp } from '../../components/util/DateUtil';
+import LoadingOverlayComp from '../../components/common/ui/LoadingOverlay';
 
 // Styled Components (공통 스타일 컴포넌트)
 import {
@@ -54,7 +58,16 @@ const CancelButton = styled(ActionButton)`
   background: linear-gradient(135deg, #6c757d, #5a6268);
 `;
 
+
+
 function BoardEditPage() {
+    const location = useLocation();
+    const {
+        currentPage,
+        sgubun,
+        searchText
+    } = location.state || {};
+
     const { id } = useParams(); // 수정할 게시글의 ID
     const navigate = useNavigate();
 
@@ -62,15 +75,49 @@ function BoardEditPage() {
     const [title, setTitle] = useState('');
     const [author, setAuthor] = useState('');
     const [content, setContent] = useState('');
+    const [isLoading, setIsLoading] = useState('');
+
+    // 서버 URL (호스트에 따라 분기)
+    const sendUrl = useMemo(
+        () =>
+            window.location.hostname === 'localhost'
+                ? 'http://localhost:18080/dart/freeboard/modi'
+                : '/dart/freeboard/modi',
+        []
+    );
 
     // 게시글 데이터를 불러오는 함수 (현재는 setTimeout으로 모의)
     const fetchBoardData = useCallback(() => {
-        setTimeout(() => {
-            // 백엔드 API 호출 결과를 반영할 수 있도록 수정 가능
-            setTitle('기존 게시글 제목');
-            setAuthor('기존 작성자');
-            setContent('<p>기존 게시글 내용입니다.</p>');
-        }, 500);
+
+        const getBoardSendUrl =
+            window.location.hostname === 'localhost'
+                ? `http://localhost:18080/dart/freeboard/view/${id}`
+                : `/dart/freeboard/view/${id}`;
+
+        (async () => {
+            try {
+                setIsLoading(true);
+                const { data, error } = await send(getBoardSendUrl, {});
+                setIsLoading(false);
+
+                if (data) {
+                    data.createdAt = formatTimestamp(data.createdAt);
+                    data.updatedAt = formatTimestamp(data.updatedAt);
+
+                    setTitle(data.title);
+                    setAuthor(data.author);
+                    setContent(data.content);
+
+                    return data;
+                } else {
+                    console.error('Error fetching post:', error);
+                    return null;
+                }
+            } catch (err) {
+                console.error('Error fetching post:', err);
+                return null;
+            }
+        })();
     }, []);
 
     // 컴포넌트 마운트 시 기존 게시글 데이터를 로드
@@ -80,15 +127,28 @@ function BoardEditPage() {
 
     // 게시글 수정 폼 제출 핸들러
     const handleSubmit = useCallback(
-        (e) => {
+        async (e) => {
             e.preventDefault();
-            // TODO: 백엔드 API 호출로 게시글 수정 로직 추가
-            console.log('수정된 데이터:', { id, title, author, content });
+
+            setIsLoading(true);
+            const result = await send(sendUrl, { id, title, author, content }, "PUT");
             alert('게시글이 수정되었습니다.');
-            navigate(`/freeBoard/view/${id}`);
+            setIsLoading(false);
+
+            navigate(`/freeBoard/view/${id}`, {
+                state: {
+                    currentPage,
+                    sgubun,
+                    searchText
+                }
+            });
         },
         [id, title, author, content, navigate]
     );
+
+    if (isLoading) {
+        return <LoadingOverlayComp isLoadingFlag={isLoading} />;
+    }
 
     return (
         <BoardContainer>

@@ -14,7 +14,7 @@ const SearchBar = ({ sgubun, searchText, onSgubunChange, onSearchTextChange, onS
                     borderRadius: '4px'
                 }}
             >
-                <option value="0">전체</option>
+                {/* <option value="0">전체</option> */}
                 <option value="1">제목</option>
                 <option value="2">작성자</option>
                 <option value="3">내용</option>
