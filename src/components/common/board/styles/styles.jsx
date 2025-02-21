@@ -160,6 +160,17 @@ export const PaginationButton = styled.button`
   &:hover {
     background: ${({ $active }) => ($active ? '#0056b3' : '#999')};
   }
+
+  ${({ disabled }) =>
+    disabled &&
+    css`
+      opacity: 0.2;
+      cursor: not-allowed;
+      &:hover {
+        background-color: ${({ active }) => (active ? '#007BFF' : '#fff')};
+      }
+    `}
+
 `;
 
 
