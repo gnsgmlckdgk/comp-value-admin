@@ -12,6 +12,7 @@ import SearchBar from '../../components/common/board/SearchBar';
 import BoardGrid from '../../components/common/board/BoardGrid';
 import PaginationControls from '../../components/common/board/PaginationControls';
 import ConfirmModal from '../../components/common/board/ConfirmModal';
+import ButtonColBox from '../../components/common/board/btn/ButtonColBox';
 import LoadingOverlayComp from '../../components/common/ui/LoadingOverlay';
 import {
     ModuleRegistry,
@@ -253,12 +254,15 @@ const BoardListPage = () => {
                 onSearch={handleSearch}
                 onReset={handleReset}
             />
-            <div style={{ display: 'flex', gap: '16px', marginTop: '8px', marginBottom: '8px' }}>
+
+            <ButtonColBox gap='16px' marginTop='8px' marginBottom='8px'>
                 <ActionButton onClick={() => navigate('/freeBoard/view')}>게시글 등록</ActionButton>
                 <DeleteButton onClick={handleDeleteButtonClick}>선택 삭제</DeleteButton>
                 <ActionButton onClick={handleBulkRegister}>테스트 20건 등록</ActionButton>
-            </div>
+            </ButtonColBox>
+
             {errorMsg && <WarningMessage>{errorMsg}</WarningMessage>}
+
             <BoardGrid
                 ref={gridRef}
                 rowData={rowData}

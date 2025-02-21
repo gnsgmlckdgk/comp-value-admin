@@ -1,6 +1,5 @@
 // File: styles.js
 import styled, { css } from 'styled-components';
-import { NavLink } from 'react-router-dom';
 
 export const BoardContainer = styled.div`
   max-width: 1200px;
