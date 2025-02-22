@@ -10,6 +10,7 @@ import ActionButton from '@components/btn/ActionButton';
 import CancelButton from '@components/btn/CancelButton';
 
 import { send } from '@utils/clientUtil';
+import { ROUTES } from '@config/routes'
 
 
 function BoardRegisterPage() {
@@ -36,7 +37,7 @@ function BoardRegisterPage() {
                 const { data, error } = await send(sendUrl, { title, author, content }, 'POST');
                 if (data) {
                     alert('게시글이 등록되었습니다.');
-                    navigate('/freeBoard');
+                    navigate(`${ROUTES.BOARD_FREEBOARD}`);
                 } else {
                     console.error('Error:', error);
                     alert(error);

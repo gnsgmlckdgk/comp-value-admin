@@ -9,8 +9,13 @@ const App = () => (
     <HashRouter>
         <Layout>
             <Routes>
-                {menuItems.map(({ path, comp: Component, show }) => (
-                    <Route key={path} path={path} element={<Component />} />
+                {menuItems.map(({ path, comp: Component, subItems }) => (
+                    <React.Fragment key={path}>
+                        <Route path={path} element={<Component />} />
+                        {subItems && subItems.map(({ path: subPath, comp: SubComp }) => (
+                            <Route key={subPath} path={subPath} element={<SubComp />} />
+                        ))}
+                    </React.Fragment>
                 ))}
             </Routes>
         </Layout>

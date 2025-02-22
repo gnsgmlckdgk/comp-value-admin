@@ -17,6 +17,10 @@ import ActionButton from '@components/btn/ActionButton';
 import DeleteButton from '@components/btn/DeleteButton';
 import WarningMessage from '@components/message/WarningMessage';
 
+import { ROUTES } from '@config/routes'
+import { API_CONFIG, IS_LOCAL } from '@config/apiConfig'
+
+
 // AG-Grid
 import {
     ModuleRegistry,
@@ -70,13 +74,16 @@ const BoardListPage = () => {
     // 데이터 로드 함수
     const loadData = useCallback(
         async (page = 0, pageSize = 30, search = '', sgubun = '0') => {
-            const sendUrl =
-                window.location.hostname === 'localhost'
-                    ? `http://localhost:18080/dart/freeboard?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`
-                    : `/dart/freeboard?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`;
+            const query = `?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`;
+            const sendUrl = `${IS_LOCAL() ? API_CONFIG.BASE_URL_LOCAL : API_CONFIG.BASE_URL}${API_CONFIG.BOARD.FREEBOARD.LIST.URL}${query}`;
+
+            // const sendUrl =
+            //     window.location.hostname === 'localhost'
+            //         ? `http://localhost:18080/dart/freeboard?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`
+            //         : `/dart/freeboard?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`;
 
             setIsLoading(true);
-            const { data } = await send(sendUrl, {});
+            const { data } = await send(sendUrl, {}, API_CONFIG.BOARD.FREEBOARD.LIST.METHOD);
             setIsLoading(false);
 
             if (data.data && data.data.length > 0) {
@@ -183,11 +190,11 @@ const BoardListPage = () => {
         await Promise.all(
             selectedNodes.map(element => {
                 const id = element.data.id;
-                const sendUrl =
-                    window.location.hostname === 'localhost'
-                        ? `http://localhost:18080/dart/freeboard/delete/${id}`
-                        : `/dart/freeboard/delete/${id}`;
-                return send(sendUrl, {}, 'DELETE');
+                const sendUrl = `${IS_LOCAL() ? API_CONFIG.BASE_URL_LOCAL : API_CONFIG.BASE_URL}${API_CONFIG.BOARD.FREEBOARD.DELETE.URL}/${id}`
+                // window.location.hostname === 'localhost'
+                //     ? `http://localhost:18080/dart/freeboard/delete/${id}`
+                //     : `/dart/freeboard/delete/${id}`;
+                return send(sendUrl, {}, API_CONFIG.BOARD.FREEBOARD.DELETE.METHOD);
             })
         );
         alert("삭제되었습니다.");
@@ -199,7 +206,8 @@ const BoardListPage = () => {
     const onCellClicked = useCallback(
         (params) => {
             if (params.colDef.field === 'title' && params.data) {
-                navigate(`/freeBoard/view/${params.data.id}`, {
+                navigate(`${ROUTES.BOARD_FREEBOARD_VIEW.replace(':id', params.data.id)}`, {
+                    // navigate(`/freeBoard/view/${params.data.id}`, {
                     state: {
                         currentPage,
                         sgubun,
@@ -214,10 +222,10 @@ const BoardListPage = () => {
 
     // 테스트: 게시글 20건 한 번에 등록하는 함수
     const handleBulkRegister = useCallback(async () => {
-        const registerUrl =
-            window.location.hostname === 'localhost'
-                ? `http://localhost:18080/dart/freeboard/regi`
-                : `/dart/freeboard/regi`;
+        const registerUrl = `${IS_LOCAL() ? API_CONFIG.BASE_URL_LOCAL : API_CONFIG.BASE_URL}${API_CONFIG.BOARD.FREEBOARD.REGISTER.URL}`
+        // window.location.hostname === 'localhost'
+        //     ? `http://localhost:18080/dart/freeboard/regi`
+        //     : `/dart/freeboard/regi`;
         setIsLoading(true);
         try {
             for (let i = 1; i <= 20; i++) {
@@ -260,7 +268,7 @@ const BoardListPage = () => {
             />
 
             <ButtonColBox gap='3px' marginTop='8px' marginBottom='8px'>
-                <ActionButton btnNm='등록' type='text' onClick={() => navigate('/freeBoard/view')} />
+                <ActionButton btnNm='등록' type='text' onClick={() => navigate(`${ROUTES.BOARD_FREEBOARD_REGISTER}`)} />
                 <DeleteButton btnNm='선택삭제' onClick={handleDeleteButtonClick} />
                 <ActionButton btnNm='테스트등록(20건)' type='text' onClick={handleBulkRegister} />
             </ButtonColBox>

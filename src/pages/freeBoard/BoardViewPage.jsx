@@ -11,6 +11,7 @@ import ButtonColBox from '@components/btn/ButtonColBox';
 import EditButton from '@components/btn/EditButton';
 import DeleteButton from '@components/btn/DeleteButton';
 
+import { ROUTES } from '@config/routes'
 
 
 const BoardViewPage = () => {
@@ -78,7 +79,7 @@ const BoardViewPage = () => {
       setIsLoading(false);
 
       // navigate(-1);
-      navigate(`/freeBoard`, {
+      navigate(`${ROUTES.BOARD_FREEBOARD}`, {
         state: {
           currentPage,
           sgubun,
@@ -100,12 +101,12 @@ const BoardViewPage = () => {
     <BoardContainer title={post.title} titleFlag={true}>
 
       <BoardView post={post} backBtnOnClicked={() =>
-        navigate('/freeBoard', {
+        navigate(`${ROUTES.BOARD_FREEBOARD}`, {
           state: { currentPage, sgubun, searchText },
         })}>
         <ButtonColBox gap='16px' sort='right'>
 
-          <EditButton btnNm='수정' onClick={() => navigate(`/freeBoard/edit/${post.id}`, {
+          <EditButton btnNm='수정' onClick={() => navigate(`${ROUTES.BOARD_FREEBOARD_EDIT.replace(':id', post.id)}`, {
             state: {
               currentPage,
               sgubun,

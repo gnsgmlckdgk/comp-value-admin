@@ -15,6 +15,7 @@ import ButtonColBox from '@components/btn/ButtonColBox';
 import ActionButton from '@components/btn/ActionButton'
 import CancelButton from '@components/btn/CancelButton';
 
+import { ROUTES } from '@config/routes'
 
 
 function BoardEditPage() {
@@ -92,7 +93,7 @@ function BoardEditPage() {
             alert('게시글이 수정되었습니다.');
             setIsLoading(false);
 
-            navigate(`/freeBoard/view/${id}`, {
+            navigate(`${ROUTES.BOARD_FREEBOARD_VIEW.replace(':id', id)}`, {
                 state: {
                     currentPage,
                     sgubun,
@@ -111,8 +112,8 @@ function BoardEditPage() {
         <BoardContainer title='게시글 수정' titleFlag={true}>
 
             <FormWrapper handleSubmit={handleSubmit}>
-                <FormInput label='제목' type='text' value={title} onChange={(e) => e.target.value} placeholder='제목을 입력하세요.' />
-                <FormInput label='작성자' type='text' value={author} onChange={(e) => e.target.value} placeholder='작성자를 입력하세요.' />
+                <FormInput label='제목' type='text' value={title} onChange={(e) => setTitle(e.target.value)} placeholder='제목을 입력하세요.' />
+                <FormInput label='작성자' type='text' value={author} onChange={(e) => setAuthor(e.target.value)} placeholder='작성자를 입력하세요.' />
                 <FormContents label='내용' content={content} setContent={setContent} />
                 <ButtonColBox gap='6px' sort='right'>
                     <ActionButton btnNm='수정' />
