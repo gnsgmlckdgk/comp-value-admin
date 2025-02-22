@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { send } from '@utils/clientUtil';
 
+import { API_CONFIG, GET_HOST } from '@config/apiConfig'
+
 /* --- 스타일 컴포넌트 --- */
 const BoardContainer = styled.div`
   max-width: 1200px;
@@ -261,11 +263,9 @@ function CompValueManual() {
             return;
         }
         try {
-            const sendUrl = window.location.hostname === "localhost"
-                ? "http://localhost:18080/dart/main/cal/per_value/manual"
-                : "/dart/main/cal/per_value/manual";
+            const sendUrl = `${GET_HOST()}${API_CONFIG.TRADE.COMPVALUE_MANUAL.URL}`;
 
-            const response = await send(sendUrl, formData, 'POST');
+            const response = await send(sendUrl, formData, API_CONFIG.TRADE.COMPVALUE_MANUAL.METHOD);
             setResult(response.data ? formatNumber(response.data.result) : JSON.stringify(response));
             // 제출 성공 시 오류 초기화
             setFormErrors({});

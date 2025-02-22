@@ -77,11 +77,6 @@ const BoardListPage = () => {
             const query = `?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`;
             const sendUrl = `${IS_LOCAL() ? API_CONFIG.BASE_URL_LOCAL : API_CONFIG.BASE_URL}${API_CONFIG.BOARD.FREEBOARD.LIST.URL}${query}`;
 
-            // const sendUrl =
-            //     window.location.hostname === 'localhost'
-            //         ? `http://localhost:18080/dart/freeboard?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`
-            //         : `/dart/freeboard?page=${page}&size=${pageSize}&search=${search}&sgubun=${sgubun}`;
-
             setIsLoading(true);
             const { data } = await send(sendUrl, {}, API_CONFIG.BOARD.FREEBOARD.LIST.METHOD);
             setIsLoading(false);
@@ -191,9 +186,6 @@ const BoardListPage = () => {
             selectedNodes.map(element => {
                 const id = element.data.id;
                 const sendUrl = `${IS_LOCAL() ? API_CONFIG.BASE_URL_LOCAL : API_CONFIG.BASE_URL}${API_CONFIG.BOARD.FREEBOARD.DELETE.URL}/${id}`
-                // window.location.hostname === 'localhost'
-                //     ? `http://localhost:18080/dart/freeboard/delete/${id}`
-                //     : `/dart/freeboard/delete/${id}`;
                 return send(sendUrl, {}, API_CONFIG.BOARD.FREEBOARD.DELETE.METHOD);
             })
         );
@@ -223,9 +215,6 @@ const BoardListPage = () => {
     // 테스트: 게시글 20건 한 번에 등록하는 함수
     const handleBulkRegister = useCallback(async () => {
         const registerUrl = `${IS_LOCAL() ? API_CONFIG.BASE_URL_LOCAL : API_CONFIG.BASE_URL}${API_CONFIG.BOARD.FREEBOARD.REGISTER.URL}`
-        // window.location.hostname === 'localhost'
-        //     ? `http://localhost:18080/dart/freeboard/regi`
-        //     : `/dart/freeboard/regi`;
         setIsLoading(true);
         try {
             for (let i = 1; i <= 20; i++) {
@@ -236,7 +225,7 @@ const BoardListPage = () => {
                         author: 'Tester',
                         content: `This is the content for test post number ${i}`,
                     },
-                    'POST'
+                    API_CONFIG.BOARD.FREEBOARD.REGISTER.METHOD
                 );
             }
             // 등록 후 데이터를 다시 불러오기

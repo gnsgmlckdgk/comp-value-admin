@@ -12,7 +12,7 @@ import EditButton from '@components/btn/EditButton';
 import DeleteButton from '@components/btn/DeleteButton';
 
 import { ROUTES } from '@config/routes'
-
+import { GET_HOST, API_CONFIG } from '@config/apiConfig'
 
 const BoardViewPage = () => {
   // location.state로 전달된 값 (없으면 기본값 사용)
@@ -29,13 +29,10 @@ const BoardViewPage = () => {
 
   const getPost = useCallback(
     async (id) => {
-      const sendUrl =
-        window.location.hostname === 'localhost'
-          ? `http://localhost:18080/dart/freeboard/view/${id}`
-          : `/dart/freeboard/view/${id}`;
+      const sendUrl = `${GET_HOST()}${API_CONFIG.BOARD.FREEBOARD.VIEW.URL}/${id}`;
 
       try {
-        const { data, error } = await send(sendUrl, {});
+        const { data, error } = await send(sendUrl, {}, API_CONFIG.BOARD.FREEBOARD.VIEW.METHOD);
         if (data) {
           data.createdAt = formatTimestamp(data.createdAt);
           data.updatedAt = formatTimestamp(data.updatedAt);
@@ -67,14 +64,11 @@ const BoardViewPage = () => {
 
   const handleDelete = useCallback(async () => {
     if (window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
-      // 실제 삭제 API 호출 로직 추가 가능
-      const sendUrl =
-        window.location.hostname === 'localhost'
-          ? `http://localhost:18080/dart/freeboard/delete/${id}`
-          : `/dart/freeboard/delete/${id}`;
+
+      const sendUrl = `${GET_HOST()}${API_CONFIG.BOARD.FREEBOARD.DELETE.URL}/${id}`;
 
       setIsLoading(true);
-      await send(sendUrl, {}, 'DELETE');
+      await send(sendUrl, {}, API_CONFIG.BOARD.FREEBOARD.DELETE.METHOD);
       alert("삭제되었습니다.")
       setIsLoading(false);
 

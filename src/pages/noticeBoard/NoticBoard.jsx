@@ -19,6 +19,8 @@ ModuleRegistry.registerModules([
     LocaleModule
 ]);
 
+import { API_CONFIG, GET_HOST } from '@config/apiConfig'
+
 
 /* --- 스타일들 --- */
 const BoardContainer = styled.div`
@@ -202,11 +204,12 @@ function NoticeBoard() {
     const fetchNoticeList = useCallback(
         async (apiCall) => {
             setIsLoading(true);
-            const sendUrl = window.location.hostname === "localhost"
-                ? "http://localhost:18080/dart/disclosure/disc/list"
-                : "/dart/disclosure/disc/list";
+            const sendUrl = `${GET_HOST()}${API_CONFIG.TRADE.NOTICE.URL}`;
+            // window.location.hostname === "localhost"
+            //     ? "http://localhost:18080/dart/disclosure/disc/list"
+            //     : "/dart/disclosure/disc/list";
             try {
-                const { data, error } = await apiCall(sendUrl, getDefReqData(), "POST");
+                const { data, error } = await apiCall(sendUrl, getDefReqData(), API_CONFIG.TRADE.NOTICE.METHOD);
                 if (error) {
                     alert(`에러 발생: ${error}`);
                     setRowData([]);

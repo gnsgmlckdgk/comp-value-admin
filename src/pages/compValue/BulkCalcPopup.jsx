@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import LoadingOverlayComp from '@components/ui/LoadingOverlay';
 import { send } from '@utils/clientUtil';
 import * as XLSX from 'xlsx'; // default export 없이 전체 import
+import { API_CONFIG, GET_HOST } from '@config/apiConfig'
 
 // 모달 오버레이 스타일
 const ModalOverlay = styled.div`
@@ -158,10 +159,7 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
         setIsLoading(true);
         setProgress({ current: 0, total: companyNames.length });
         const results = [];
-        const sendUrl =
-            window.location.hostname === 'localhost'
-                ? 'http://localhost:18080/dart/main/cal/per_value'
-                : '/dart/main/cal/per_value';
+        const sendUrl = `${GET_HOST()}${API_CONFIG.TRADE.COMPVALUE.URL}`;
 
         // 각 기업명에 대해 API 호출
         for (let i = 0; i < companyNames.length; i++) {
@@ -171,7 +169,7 @@ const BulkCalcPopup = ({ onClose, year = new Date().getFullYear() }) => {
                     corp_name: name,
                     corp_code: '',
                     year: year,
-                });
+                }, API_CONFIG.TRADE.COMPVALUE.METHOD);
                 // 정상 응답이더라도 HttpStatus가 200이 아니면 오류 처리
                 if (error || (data && data.httpStatus && data.httpStatus !== 200)) {
                     results.push({

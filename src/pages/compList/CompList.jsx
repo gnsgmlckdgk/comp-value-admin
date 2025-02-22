@@ -10,6 +10,8 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { send } from '@utils/clientUtil';
 import LoadingOverlayComp from '@components/ui/LoadingOverlay';
 
+import { API_CONFIG, GET_HOST } from '@config/apiConfig'
+
 
 ModuleRegistry.registerModules([
   ClientSideRowModelModule,
@@ -132,12 +134,10 @@ const CompList = () => {
   const handleSearch = async (e) => {
     e.preventDefault();
 
-    const sendUrl = window.location.hostname === "localhost"
-      ? "http://localhost:18080/dart/disclosure/corpCode"
-      : "/dart/disclosure/corpCode";
+    const sendUrl = `${GET_HOST()}${API_CONFIG.TRADE.COMPLIST.URL}`;
 
     setIsLoading(true);
-    const { data, error } = await send(sendUrl, {});
+    const { data, error } = await send(sendUrl, {}, API_CONFIG.TRADE.COMPLIST.METHOD);
 
     // console.log("data", data);
     // console.log("error", error);

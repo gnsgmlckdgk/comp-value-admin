@@ -16,6 +16,7 @@ import ActionButton from '@components/btn/ActionButton'
 import CancelButton from '@components/btn/CancelButton';
 
 import { ROUTES } from '@config/routes'
+import { GET_HOST, API_CONFIG } from '@config/apiConfig'
 
 
 function BoardEditPage() {
@@ -38,24 +39,19 @@ function BoardEditPage() {
     // 서버 URL (호스트에 따라 분기)
     const sendUrl = useMemo(
         () =>
-            window.location.hostname === 'localhost'
-                ? 'http://localhost:18080/dart/freeboard/modi'
-                : '/dart/freeboard/modi',
+            `${GET_HOST()}${API_CONFIG.BOARD.FREEBOARD.EDIT.URL}`,
         []
     );
 
     // 게시글 데이터를 불러오는 함수 (현재는 setTimeout으로 모의)
     const fetchBoardData = useCallback(() => {
 
-        const getBoardSendUrl =
-            window.location.hostname === 'localhost'
-                ? `http://localhost:18080/dart/freeboard/view/${id}`
-                : `/dart/freeboard/view/${id}`;
+        const getBoardSendUrl = `${GET_HOST()}${API_CONFIG.BOARD.FREEBOARD.VIEW.URL}/${id}`;
 
         (async () => {
             try {
                 setIsLoading(true);
-                const { data, error } = await send(getBoardSendUrl, {});
+                const { data, error } = await send(getBoardSendUrl, {}, API_CONFIG.BOARD.FREEBOARD.VIEW.METHOD);
                 setIsLoading(false);
 
                 if (data) {
@@ -89,7 +85,7 @@ function BoardEditPage() {
             e.preventDefault();
 
             setIsLoading(true);
-            const result = await send(sendUrl, { id, title, author, content }, "PUT");
+            const result = await send(sendUrl, { id, title, author, content }, API_CONFIG.BOARD.FREEBOARD.EDIT.METHOD);
             alert('게시글이 수정되었습니다.');
             setIsLoading(false);
 

@@ -5,6 +5,8 @@ import LoadingOverlayComp from '@components/ui/LoadingOverlay';
 import { send } from '@utils/clientUtil';
 import DetailsToggle from './DetailCompValue';
 
+import { API_CONFIG, GET_HOST } from '@config/apiConfig'
+
 // 스타일 컴포넌트 (styled-components)
 import * as comp from './style/CompValueStyle';
 
@@ -13,6 +15,7 @@ import dart_data from './data/open_dart';
 
 // 대량 계산 팝업 컴포넌트 (별도 파일)
 import BulkCalcPopup from './BulkCalcPopup';
+
 
 /**
  * 상세정보 세팅 (결과 객체의 "상세정보" 속성을 배열 형태로 변환)
@@ -47,10 +50,7 @@ const CompValue = () => {
             return;
         }
 
-        const sendUrl = window.location.hostname === "localhost"
-            ? "http://localhost:18080/dart/main/cal/per_value"
-            : "/dart/main/cal/per_value";
-
+        const sendUrl = `${GET_HOST()}${API_CONFIG.TRADE.COMPVALUE.URL}`;
         setIsLoading(true);
 
         try {
@@ -58,7 +58,7 @@ const CompValue = () => {
                 corp_name: companyName,
                 corp_code: code,
                 year: date,
-            });
+            }, API_CONFIG.TRADE.COMPVALUE.METHOD);
 
             if (error) {
                 // 에러 발생 시 결과 메시지 업데이트
