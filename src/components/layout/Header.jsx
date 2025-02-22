@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HeaderContainer, Logo, HeaderNav, StyledNavLink, MobileMenuIcon } from './style/HeaderStyle';
-import { menuItems } from '../../config/menuConfig';
+import { menuItems } from '@config/menuConfig';
 
 const Header = ({ pathName }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

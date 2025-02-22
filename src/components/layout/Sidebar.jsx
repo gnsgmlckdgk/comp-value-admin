@@ -8,7 +8,7 @@ import {
   MenuItem,
   StyledNavLink
 } from './style/SidebarStyle';
-import { menuItems } from '../../config/menuConfig';
+import { menuItems } from '@config/menuConfig';
 
 const Sidebar = ({
   isOpen,

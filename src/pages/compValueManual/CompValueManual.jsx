@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { send } from '../../components/util/clientUtil';
+import { send } from '@utils/clientUtil';
 
 /* --- 스타일 컴포넌트 --- */
 const BoardContainer = styled.div`

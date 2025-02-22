@@ -1,5 +1,38 @@
 import React from 'react';
-import { PaginationContainer, PaginationButton } from './styles/styles';  // 기존 스타일 컴포넌트 import
+import styled, { css } from 'styled-components';
+
+/* 추가: Pagination 스타일 */
+const PaginationContainer = styled.div`
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+`;
+
+const PaginationButton = styled.button`
+  padding: 8px 12px;
+  border: none;
+  background: ${({ $active }) => ($active ? '#007bff' : '#ccc')};
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  &:hover {
+    background: ${({ $active }) => ($active ? '#0056b3' : '#999')};
+  }
+
+  ${({ disabled }) =>
+        disabled &&
+        css`
+      opacity: 0.2;
+      cursor: not-allowed;
+      &:hover {
+        background-color: ${({ active }) => (active ? '#007BFF' : '#fff')};
+      }
+    `}
+
+`;
+
 
 function PaginationControls({ currentPage, totalPages, onPageChange }) {
     // 그룹 크기(한 화면에 표시할 최대 페이지 번호 수)

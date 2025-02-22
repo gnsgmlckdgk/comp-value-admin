@@ -1,4 +1,4 @@
-import { Home, NoticBoard, CompList, CompValue, CompValueManual, BoardListPage, BoardViewPage, BoardRegisterPage, BoardEditPage } from '../pages'
+import { Home, NoticBoard, CompList, CompValue, CompValueManual, BoardListPage, BoardViewPage, BoardRegisterPage, BoardEditPage } from '@pages'
 
 // src/config/menuConfig.js
 export const menuItems = [

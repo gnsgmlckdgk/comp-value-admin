@@ -8,10 +8,10 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 // 로딩 오버레이 (선택)
-import LoadingOverlayComp from '../../components/common/ui/LoadingOverlay';
+import LoadingOverlayComp from '@components/ui/LoadingOverlay';
 
 // 서버 통신 함수 (가정)
-import { send, asyncSend } from '../../components/util/clientUtil';
+import { send, asyncSend } from '@utils/clientUtil';
 
 // 모듈 등록
 ModuleRegistry.registerModules([

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import LoadingOverlayComp from '../../components/common/ui/LoadingOverlay';
-import { send } from '../../components/util/clientUtil';
+import LoadingOverlayComp from '@components/ui/LoadingOverlay';
+import { send } from '@utils/clientUtil';
 import * as XLSX from 'xlsx'; // default export 없이 전체 import
 
 // 모달 오버레이 스타일

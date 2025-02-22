@@ -1,19 +1,23 @@
+// 라이브러리
 import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { send } from '../../components/util/clientUtil';
-import {
-    BoardContainer,
-    Title,
-    ActionButton,
-    WarningMessage,
-    DeleteButton,
-} from '../../components/common/board/styles/styles';
-import SearchBar from '../../components/common/board/SearchBar';
-import BoardGrid from '../../components/common/board/BoardGrid';
-import PaginationControls from '../../components/common/board/PaginationControls';
-import ConfirmModal from '../../components/common/board/ConfirmModal';
-import ButtonColBox from '../../components/common/board/btn/ButtonColBox';
-import LoadingOverlayComp from '../../components/common/ui/LoadingOverlay';
+
+// 유틸
+import { send } from '@utils/clientUtil';
+
+// 컴포넌트
+import SearchBar from '@components/board/SearchBar';
+import BoardGrid from '@components/board/BoardGrid';
+import PaginationControls from '@components/board/PaginationControls';
+import ConfirmModal from '@components/board/ConfirmModal';
+import ButtonColBox from '@components/btn/ButtonColBox';
+import LoadingOverlayComp from '@components/ui/LoadingOverlay';
+import BoardContainer from '@components/board/BoardContainer';
+import ActionButton from '@components/btn/ActionButton';
+import DeleteButton from '@components/btn/DeleteButton';
+import WarningMessage from '@components/message/WarningMessage';
+
+// AG-Grid
 import {
     ModuleRegistry,
     RowSelectionModule,
@@ -26,7 +30,6 @@ import {
 } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-
 ModuleRegistry.registerModules([
     RowSelectionModule,
     ClientSideRowModelModule,
@@ -36,6 +39,8 @@ ModuleRegistry.registerModules([
     NumberFilterModule,
     DateFilterModule,
 ]);
+
+
 
 // 그리드 페이징 설정
 const pagination = true;
@@ -244,8 +249,7 @@ const BoardListPage = () => {
     }
 
     return (
-        <BoardContainer>
-            <Title>자유게시판</Title>
+        <BoardContainer title='자유게시판' titleFlag={true}>
             <SearchBar
                 sgubun={sgubun}
                 searchText={searchText}
@@ -255,13 +259,14 @@ const BoardListPage = () => {
                 onReset={handleReset}
             />
 
-            <ButtonColBox gap='16px' marginTop='8px' marginBottom='8px'>
-                <ActionButton onClick={() => navigate('/freeBoard/view')}>게시글 등록</ActionButton>
-                <DeleteButton onClick={handleDeleteButtonClick}>선택 삭제</DeleteButton>
-                <ActionButton onClick={handleBulkRegister}>테스트 20건 등록</ActionButton>
+            <ButtonColBox gap='3px' marginTop='8px' marginBottom='8px'>
+                <ActionButton btnNm='등록' type='text' onClick={() => navigate('/freeBoard/view')} />
+                <DeleteButton btnNm='선택삭제' onClick={handleDeleteButtonClick} />
+                <ActionButton btnNm='테스트등록(20건)' type='text' onClick={handleBulkRegister} />
             </ButtonColBox>
+            {errorMsg && <WarningMessage message={errorMsg} />}
 
-            {errorMsg && <WarningMessage>{errorMsg}</WarningMessage>}
+
 
             <BoardGrid
                 ref={gridRef}

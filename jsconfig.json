@@ -1,0 +1,25 @@
+// 이 파일은 VSCode 에디터 자동완성, 네비게이션 등 설정하는 파일
+// 절대경로같은경우 실제 컴파일 되려면 웹팩에 설정 필요
+{
+    "compilerOptions": {
+        "baseUrl": "src",
+        "paths": {
+            // 순서대로 탐색
+            "@components/*": [
+                "components/page/*"
+            ],
+            "@layout/*": [
+                "components/layout/*"
+            ],
+            "@utils/*": [
+                "utils/*"
+            ],
+            "@config/*": [
+                "config/*"
+            ],
+            "@pages/*": [
+                "pages/*"
+            ],
+        }
+    }
+}

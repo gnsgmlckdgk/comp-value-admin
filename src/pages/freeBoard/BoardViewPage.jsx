@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
-import BoardView from '../../components/common/board/BoardView';
+import { send } from '@utils/clientUtil';
+import LoadingOverlayComp from '@components/ui/LoadingOverlay';
+import { formatTimestamp } from '../../util/DateUtil';
 
-import { send } from '../../components/util/clientUtil';
-import LoadingOverlayComp from '../../components/common/ui/LoadingOverlay';
-import { formatTimestamp } from '../../components/util/DateUtil';
+import BoardView from '@components/board/BoardView';
+import BoardContainer from '@components/board/BoardContainer';
+import ButtonColBox from '@components/btn/ButtonColBox';
+import EditButton from '@components/btn/EditButton';
+import DeleteButton from '@components/btn/DeleteButton';
 
 
 
@@ -84,27 +88,36 @@ const BoardViewPage = () => {
     }
   }, [navigate]);
 
-  if (isLoading) {
+  if (isLoading || !post) {
     return <LoadingOverlayComp isLoadingFlag={isLoading} />;
   }
 
+  // if (!post) {
+  //   return <div>로딩 중...</div>;
+  // }
+
   return (
-    <BoardView
-      post={post}
-      ebtnOnClicked={() => navigate(`/freeBoard/edit/${post.id}`, {
-        state: {
-          currentPage,
-          sgubun,
-          searchText
-        }
-      })}
-      delBtnOnClicked={handleDelete}
-      backBtnOnClicked={() =>
+    <BoardContainer title={post.title} titleFlag={true}>
+
+      <BoardView post={post} backBtnOnClicked={() =>
         navigate('/freeBoard', {
           state: { currentPage, sgubun, searchText },
-        })
-      }>
-    </BoardView>
+        })}>
+        <ButtonColBox gap='16px' sort='right'>
+
+          <EditButton btnNm='수정' onClick={() => navigate(`/freeBoard/edit/${post.id}`, {
+            state: {
+              currentPage,
+              sgubun,
+              searchText
+            }
+          })} />
+
+          <DeleteButton btnNm='삭제' onClick={handleDelete} />
+
+        </ButtonColBox>
+      </BoardView>
+    </BoardContainer>
   );
 };
 

@@ -1,8 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-
-
 module.exports = {
     entry: './src/index.js',
     output: {
@@ -38,6 +36,13 @@ module.exports = {
         }),
     ],
     resolve: {
+        alias: {
+            '@components': path.resolve(__dirname, 'src/components/page'),
+            '@layout': path.resolve(__dirname, 'src/components/layout'),
+            '@utils': path.resolve(__dirname, 'src/util'),
+            '@config': path.resolve(__dirname, 'src/config'),
+            '@pages': path.resolve(__dirname, 'src/pages'),
+        },
         extensions: ['.js', '.jsx']
     }
 };

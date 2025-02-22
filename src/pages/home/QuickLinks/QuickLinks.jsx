@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { menuItems } from "../../../config/menuConfig";
+import { menuItems } from "@config/menuConfig";
 
 // 컨테이너: flex-wrap을 사용하여 여러 행으로 배치되고, 화면 크기에 따라 간격이 유지됩니다.
 const QuickLinksContainer = styled.div`
