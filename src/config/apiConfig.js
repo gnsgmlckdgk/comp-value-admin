@@ -6,7 +6,7 @@
  */
 export const IS_LOCAL = () => (window.location.hostname === 'localhost')
 export const GET_HOST = () => {
-    if (IS_LOCAL) {
+    if (IS_LOCAL()) {
         return API_CONFIG.BASE_URL_LOCAL;
     } else {
         return API_CONFIG.BASE_URL;
