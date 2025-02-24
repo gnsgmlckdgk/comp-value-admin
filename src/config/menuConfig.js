@@ -4,11 +4,13 @@ import { ROUTES } from './routes'
 // src/config/menuConfig.js
 export const menuItems = [
     { label: "Home", path: ROUTES.HOME, comp: Home, show: true },
-    { label: "주요사항 공지", path: ROUTES.TRADE_NOTICE, comp: NoticBoard, show: true },
-    { label: "기업목록", path: ROUTES.TRADE_COMPLIST, comp: CompList, show: true },
+
     {
-        label: "기업가치", path: ROUTES.TRADE_COMPVALUE, comp: CompValue, show: true,
+        label: "트레이드", path: ROUTES.TRADE_NOTICE, comp: NoticBoard, show: true,
         subItems: [
+            { label: "주요사항 공지", path: ROUTES.TRADE_NOTICE, comp: NoticBoard, show: true },
+            { label: "기업목록", path: ROUTES.TRADE_COMPLIST, comp: CompList, show: true },
+            { label: "기업가치", path: ROUTES.TRADE_COMPVALUE, comp: CompValue, show: true },
             { label: "기업가치(수동)", path: ROUTES.TRADE_COMPVALUE_MANUAL, comp: CompValueManual, show: true },
         ],
     },

@@ -18,7 +18,7 @@ export const BoardContainer = styled.div`
 
 export const Title = styled.h1`
   margin-bottom: 24px;
-  font-size: 1.5rem;
+  font-size: 2rem;
   text-align: center;
   color: #181a31;
 

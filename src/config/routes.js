@@ -5,17 +5,17 @@ export const ROUTES = {
 
     //@ 트레이드
     //# 기업주요사항
-    TRADE_NOTICE: '/notice',
+    TRADE_NOTICE: '/trade/notice',
     //# 기업가치
-    TRADE_COMPLIST: '/complist',
-    TRADE_COMPVALUE: '/compvalue',
-    TRADE_COMPVALUE_MANUAL: '/compvalue/manual',
+    TRADE_COMPLIST: '/trade/complist',
+    TRADE_COMPVALUE: '/trade/compvalue',
+    TRADE_COMPVALUE_MANUAL: '/trade/compvalue/manual',
 
     //@ 게시판
 
     //# 자유게시판
-    BOARD_FREEBOARD: '/freeBoard',
-    BOARD_FREEBOARD_VIEW: '/freeBoard/view/:id',
-    BOARD_FREEBOARD_REGISTER: '/freeBoard/regi',
-    BOARD_FREEBOARD_EDIT: '/freeBoard/edit/:id',
+    BOARD_FREEBOARD: '/board/freeBoard',
+    BOARD_FREEBOARD_VIEW: '/board/freeBoard/view/:id',
+    BOARD_FREEBOARD_REGISTER: '/board/freeBoard/regi',
+    BOARD_FREEBOARD_EDIT: '/board/freeBoard/edit/:id',
 };

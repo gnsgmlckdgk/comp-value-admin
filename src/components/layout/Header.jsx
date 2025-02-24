@@ -7,7 +7,7 @@ import { menuItems } from '@config/menuConfig';
 // 하위 메뉴(드롭다운) 컨테이너
 const DropdownContainer = styled.div`
   position: absolute;
-  top: 100%; /* 부모 메뉴 바로 아래에 위치 */
+  top: 100%; /* 부모 메뉴 바로 아래 */
   ${props => (props.$direction === 'left' ? 'right: 0;' : 'left: 0;')}
   background: linear-gradient(135deg, #252850, #181a31);
   min-width: 150px;
@@ -20,7 +20,7 @@ const DropdownContainer = styled.div`
   z-index: 1100;
 `;
 
-// 하위 메뉴 항목 스타일 (기존 StyledNavLink 확장)
+// 하위 메뉴 항목 스타일 (StyledNavLink 확장)
 const DropdownItem = styled(StyledNavLink)`
   display: block;
   padding: 8px 12px;
@@ -35,33 +35,39 @@ const Header = () => {
   const [dropdownDirection, setDropdownDirection] = useState({});
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // 현재 URL 경로를 가져옴
   const location = useLocation();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(prev => !prev);
   };
 
-  // 메뉴 항목에 마우스 오버 시, 하위 메뉴가 있다면 위치를 계산해서 방향 설정
+  // 메뉴 항목에 마우스 오버 시, 하위 메뉴가 있다면 방향 설정 후 상태 업데이트
   const handleMouseEnter = (menu, e) => {
     if (menu.subItems) {
       const rect = e.currentTarget.getBoundingClientRect();
-      const dropdownWidth = 150; // 드롭다운 최소 너비
+      const dropdownWidth = 150;
       const direction = (rect.right + dropdownWidth > window.innerWidth) ? 'left' : 'right';
       setDropdownDirection(prev => ({ ...prev, [menu.path]: direction }));
     }
     setHoveredMenu(menu.path);
   };
 
-  // 메뉴 항목에서 마우스 벗어나면 드롭다운 숨김
   const handleMouseLeave = () => {
     setHoveredMenu(null);
   };
 
-  // 상위 메뉴가 선택된 상태를 판단하는 함수  
-  // 현재 경로가 메뉴의 path와 정확히 일치하거나, 메뉴 path 다음에 '/'가 붙은 경우 선택된 것으로 간주합니다.
-  const isMenuSelected = (menuPath) => {
-    return location.pathname === menuPath || location.pathname.startsWith(menuPath + '/');
+  // 상위 메뉴의 활성화 여부를 판단하는 함수
+  // 현재 경로가 상위 메뉴의 경로 또는 그 하위 메뉴들 중 하나의 경로와 일치하면 true 반환
+  const isMenuSelected = (menu) => {
+    if (location.pathname === menu.path || location.pathname.startsWith(menu.path + '/')) {
+      return true;
+    }
+    if (menu.subItems && menu.subItems.length > 0) {
+      return menu.subItems.some(sub => (
+        location.pathname === sub.path || location.pathname.startsWith(sub.path + '/')
+      ));
+    }
+    return false;
   };
 
   return (
@@ -82,7 +88,7 @@ const Header = () => {
           >
             <StyledNavLink
               to={menu.path}
-              className={isMenuSelected(menu.path) ? 'selected' : ''}
+              className={isMenuSelected(menu) ? 'selected' : ''}
             >
               {menu.label}
             </StyledNavLink>
