@@ -18,18 +18,57 @@ const Sidebar = ({
   onLockToggle,
   pathName
 }) => {
-  const selectedClass = 'selected';
-  const showContent = isOpen || isLocked;
+  // 동적 URL 처리를 위한 헬퍼 함수
+  const matchRoute = (pattern, path) => {
+    if (pattern.includes(':')) {
+      // 동적 세그먼트 이전의 고정 부분만 추출 (예: '/board/freeBoard/view')
+      const basePattern = pattern.split('/:')[0];
+      return path.startsWith(basePattern);
+    }
+    return pattern === path;
+  };
 
-  // 현재 메뉴가 active한지 판단하는 함수 (부모 혹은 하위 메뉴가 현재 페이지인지)
+  // 메뉴 혹은 하위 메뉴 중 하나라도 현재 경로와 일치하는지 확인
   const isMenuActive = (menu) => {
-    if (menu.path === pathName) return true;
-    if (menu.subItems && menu.subItems.some(sub => sub.path === pathName)) return true;
+    if (!menu.show) return false;
+    if (menu.activePaths) {
+      if (menu.activePaths.some(route => matchRoute(route, pathName))) return true;
+    } else {
+      if (matchRoute(menu.path, pathName)) return true;
+    }
+    if (menu.subItems) {
+      return menu.subItems.some(sub => isMenuActive(sub));
+    }
     return false;
   };
 
-  // 현재 페이지에 해당하는 메뉴 그룹만 필터링
-  const activeMenus = menuItems.filter(menu => menu.show && isMenuActive(menu));
+  // 상위(1뎁스) 메뉴 중 현재 경로에 해당하는 메뉴가 있으면 해당 메뉴만 표시
+  const activeTopMenu = menuItems.find(menu => menu.show && isMenuActive(menu));
+  const topMenusToDisplay = activeTopMenu ? [activeTopMenu] : menuItems.filter(menu => menu.show);
+
+  // 재귀적으로 메뉴 항목들을 렌더링 (MenuList는 최상위에 한 번만 사용)
+  const renderMenuItems = (items, depth = 0) => {
+    return items.map(item => {
+      if (!item.show) return null;
+      // 동적 URL 처리를 포함하여 현재 메뉴가 선택되었는지 체크
+      const isSelected = item.activePaths
+        ? item.activePaths.some(route => matchRoute(route, pathName))
+        : matchRoute(item.path, pathName);
+
+      return (
+        <React.Fragment key={item.path}>
+          <MenuItem style={{ paddingLeft: `${depth * 20}px` }}>
+            <StyledNavLink to={item.path} className={isSelected ? 'selected' : ''}>
+              {item.label}
+            </StyledNavLink>
+          </MenuItem>
+          {item.subItems && isMenuActive(item) && renderMenuItems(item.subItems, depth + 1)}
+        </React.Fragment>
+      );
+    });
+  };
+
+  const showContent = isOpen || isLocked;
 
   return (
     <SidebarContainer
@@ -46,36 +85,7 @@ const Sidebar = ({
           <SidebarContent>
             <h2>HCH</h2>
             <MenuList>
-              {activeMenus.map(menu => (
-                <React.Fragment key={menu.path}>
-                  {/* 1뎁스 메뉴 - subItems가 있는 경우 selected 스타일 적용 안함 */}
-                  <MenuItem>
-                    <StyledNavLink
-                      to={menu.path}
-                      className={
-                        menu.subItems && menu.subItems.length > 0
-                          ? ''
-                          : (menu.path === pathName ? selectedClass : '')
-                      }
-                    >
-                      {menu.label}
-                    </StyledNavLink>
-                  </MenuItem>
-                  {/* subItems가 있다면 항상 표시 */}
-                  {menu.subItems && menu.subItems.map(sub => (
-                    sub.show && (
-                      <MenuItem key={sub.path} style={{ paddingLeft: '20px' }}>
-                        <StyledNavLink
-                          to={sub.path}
-                          className={sub.path === pathName ? selectedClass : ''}
-                        >
-                          {sub.label}
-                        </StyledNavLink>
-                      </MenuItem>
-                    )
-                  ))}
-                </React.Fragment>
-              ))}
+              {renderMenuItems(topMenusToDisplay)}
             </MenuList>
           </SidebarContent>
         </>
