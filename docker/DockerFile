@@ -1,10 +1,8 @@
 FROM node:18 AS build
 WORKDIR /app
 
-# 기존 yarn 제거 후 재설치 및 빠른 레지스트리 설정
-RUN npm uninstall -g yarn || true \
-    && npm install -g yarn@1.22.22 \
-    && yarn config set registry https://registry.npmmirror.com
+# Yarn 레지스트리만 빠르게 설정 (기존 Yarn 사용)
+RUN yarn config set registry https://registry.npmmirror.com
 
 COPY package*.json ./
 RUN yarn install --frozen-lockfile
