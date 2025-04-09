@@ -50,7 +50,8 @@ env:
 
 jobs:
   build:
-    runs-on: self-hosted  # self-hosted ARM64 runner (ex. Mac M1)
+    # self-hosted ARM64 runner (ex. Mac M1)
+    runs-on: self-hosted
 
     steps:
       # (1) 소스코드 체크아웃
