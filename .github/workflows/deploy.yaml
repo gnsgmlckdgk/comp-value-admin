@@ -82,11 +82,8 @@ jobs:
             -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }} \
             -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
             --push .
-
-      # (6) Docker 캐시 및 GitHub Actions 작업공간 정리
-      - name: Clean up Docker & workspace
-        # 워크플로우 실패 여부와 관계없이 실행
+      
+      # (6) 사용하지 않는 Docker 리소스 삭제
+      - name: Clean up Docker (optional)
         if: always()
-        run: |
-          docker system prune -af
-          rm -rf "$RUNNER_WORKSPACE"
+        run: docker system prune -af
