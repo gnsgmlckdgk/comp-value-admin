@@ -50,24 +50,28 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted  # self-hosted ARM64 runner (ex. Mac M1)
 
     steps:
+      # (1) 소스코드 체크아웃
       - uses: actions/checkout@v3
 
-      - name: Set up QEMU (for multi-arch)
+      # (2) QEMU 설정 (멀티 아키텍처 빌드를 위한 가상화)
+      - name: Set up QEMU (for cross-build)
         uses: docker/setup-qemu-action@v2
 
+      # (3) Docker Buildx 설정 (멀티 플랫폼 빌드를 위해 필요)
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
         with:
-          install: true
-          driver: docker-container
+          driver-opts: network=host  # 네트워크 이슈 방지 (e.g., timeout)
           use: true
 
+      # (4) GHCR 로그인 (PAT 사용)
       - name: Login to GHCR
         run: echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
+      # (5) Docker 이미지 빌드 및 푸시 (linux/amd64 + linux/arm64), latest 태그 포함
       - name: Build and Push Multi-Arch Image (amd64 + arm64)
         run: |
           docker buildx build \
@@ -75,4 +79,13 @@ jobs:
             --build-arg YARN_TIMEOUT=60000 \
             -f docker/DockerFile \
             -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }} \
+            -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
             --push .
+
+      # (6) Docker 캐시 및 GitHub Actions 작업공간 정리
+      - name: Clean up Docker & workspace
+        # 워크플로우 실패 여부와 관계없이 실행
+        if: always()
+        run: |
+          docker system prune -af
+          rm -rf "$RUNNER_WORKSPACE"
