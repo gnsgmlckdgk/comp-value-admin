@@ -1,14 +1,11 @@
 FROM node:18 AS build
 WORKDIR /app
 
-# Yarn 레지스트리만 빠르게 설정 (기존 Yarn 사용)
-RUN yarn config set registry https://registry.npmmirror.com
-
 COPY package*.json ./
-RUN yarn install --frozen-lockfile
+RUN npm ci
 
 COPY . .
-RUN yarn build
+RUN npm run build
 
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
