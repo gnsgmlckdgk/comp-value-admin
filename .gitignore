@@ -37,3 +37,4 @@ yarn-error.log*
 *.log
 *.swp
 .DS_Store
+actions-runner/
