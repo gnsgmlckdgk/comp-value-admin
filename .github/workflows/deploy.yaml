@@ -42,7 +42,7 @@ name: Build and Push Docker Image to GHCR
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: gnsgmlckdgk/comp-value-admin
-  VERSION: latest
+  VERSION: v1
 
 on:
   push:
