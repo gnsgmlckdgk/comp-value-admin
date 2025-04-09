@@ -1,7 +1,13 @@
 FROM node:18 AS build
 WORKDIR /app
+
+# Yarn 설치 및 빠른 레지스트리 설정
+RUN npm install -g yarn@1.22.22 \
+    && yarn config set registry https://registry.npmmirror.com
+
 COPY package*.json ./
-RUN corepack enable && yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile
+
 COPY . .
 RUN yarn build
 
