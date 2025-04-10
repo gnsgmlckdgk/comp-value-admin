@@ -4,6 +4,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
+COPY package.json . 
+COPY k8s/.env.production .env
 COPY . .
 RUN npm run build
 

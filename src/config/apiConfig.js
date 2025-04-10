@@ -20,7 +20,7 @@ export const GET_HOST = () => {
 export const API_CONFIG = {
 
     BASE_URL_LOCAL: 'http://localhost:18080',
-    BASE_URL: '',
+    BASE_URL: process.env.REACT_APP_API_BASE_URL,
 
     //@ 트레이드, `${GET_HOST()}${API_CONFIG.TRADE.NOTICE.URL}`;
     TRADE: {
