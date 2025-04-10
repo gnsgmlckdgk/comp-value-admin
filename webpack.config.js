@@ -1,6 +1,9 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+
 const Dotenv = require('dotenv-webpack');
+const mode = process.env.REACT_APP_ENV || 'local';
+
 
 module.exports = {
     entry: './src/index.js',
@@ -36,8 +39,7 @@ module.exports = {
             meta: { charset: 'UTF-8' }
         }),
         new Dotenv({
-            path: path.resolve(__dirname, '.env.local'), // 경로 명시
-            // path: path.resolve(__dirname, '.env.production'), // 경로 명시
+            path: path.resolve(__dirname, `.env.${mode}`),
         }),
     ],
     resolve: {
