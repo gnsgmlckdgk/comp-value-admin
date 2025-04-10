@@ -4,7 +4,9 @@
  * 로컬환경인지 확인
  * @returns 
  */
-export const IS_LOCAL = () => (window.location.hostname === 'localhost')
+// export const IS_LOCAL = () => (window.location.hostname === 'localhost')
+export const IS_LOCAL = () => process.env.REACT_APP_ENV === 'local';
+
 export const GET_HOST = () => {
     if (IS_LOCAL()) {
         return API_CONFIG.BASE_URL_LOCAL;

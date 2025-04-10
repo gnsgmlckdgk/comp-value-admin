@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
     entry: './src/index.js',
@@ -33,6 +34,9 @@ module.exports = {
             template: './public/index.html', // 템플릿 파일 경로
             filename: 'index.html',
             meta: { charset: 'UTF-8' }
+        }),
+        new Dotenv({
+            path: path.resolve(__dirname, '.env.local'), // 경로 명시
         }),
     ],
     resolve: {
