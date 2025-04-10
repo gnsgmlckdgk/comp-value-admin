@@ -135,6 +135,7 @@ const CompList = () => {
     e.preventDefault();
 
     const sendUrl = `${GET_HOST()}${API_CONFIG.TRADE.COMPLIST.URL}`;
+    console.log("sendUrl = " + sendUrl);
 
     setIsLoading(true);
     const { data, error } = await send(sendUrl, {}, API_CONFIG.TRADE.COMPLIST.METHOD);

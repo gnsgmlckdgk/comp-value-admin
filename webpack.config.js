@@ -37,6 +37,7 @@ module.exports = {
         }),
         new Dotenv({
             path: path.resolve(__dirname, '.env.local'), // 경로 명시
+            // path: path.resolve(__dirname, '.env.production'), // 경로 명시
         }),
     ],
     resolve: {
