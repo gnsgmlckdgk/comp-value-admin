@@ -1,11 +1,13 @@
 FROM node:18 AS build
 WORKDIR /app
 
+ENV REACT_APP_ENV=prod
+
 COPY package*.json ./
 RUN npm ci
 
 COPY . .
-COPY .env.production .env
+COPY .env.prod .env
 RUN npm run build
 
 FROM nginx:alpine
