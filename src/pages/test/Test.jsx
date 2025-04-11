@@ -14,7 +14,7 @@ const healthCheckHandler = async (e) => {
 const Test = () => {
     return (
         <>
-            <div onClick={healthCheckHandler} style={{ cursor: 'pointer', width: '20px', height: '60px' }}>
+            <div onClick={healthCheckHandler} style={{ cursor: 'pointer', width: '20px', height: '60px', border: '1px solid black' }}>
                 ServerCheck
             </div>
         </>

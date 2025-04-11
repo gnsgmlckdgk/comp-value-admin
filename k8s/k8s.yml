@@ -26,11 +26,11 @@ spec:
           ports:
             - containerPort: 80
           env:
-            # nginx 환경변수
-            - name: BACKEND_HOST
-              value: comp-value-service.comp-value.svc.cluster.local
-            - name: BACKEND_PORT
-              value: "80"
+            # # nginx 환경변수
+            # - name: BACKEND_HOST
+            #   value: comp-value-service.comp-value.svc.cluster.local
+            # - name: BACKEND_PORT
+            #   value: "80"
 
 ---
 apiVersion: v1
