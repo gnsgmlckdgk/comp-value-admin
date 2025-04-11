@@ -1,6 +1,7 @@
 // src/config/menuConfig.js
 import {
     Home,
+    Test,
     NoticBoard,
     CompList,
     CompValue,
@@ -17,6 +18,12 @@ export const menuItems = [
         label: "Home",
         path: ROUTES.HOME,
         comp: Home,
+        show: true,
+    },
+    {
+        label: "Test",
+        path: ROUTES.TEST,
+        comp: Test,
         show: true,
     },
     {

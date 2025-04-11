@@ -3,6 +3,9 @@ export const ROUTES = {
     //@ 홈
     HOME: '/',
 
+    //@ 테스트
+    TEST: '/test',
+
     //@ 트레이드
     //# 기업주요사항
     TRADE_NOTICE: '/trade/notice',
@@ -12,7 +15,6 @@ export const ROUTES = {
     TRADE_COMPVALUE_MANUAL: '/trade/compvalue/manual',
 
     //@ 게시판
-
     //# 자유게시판
     BOARD_FREEBOARD: '/board/freeBoard',
     BOARD_FREEBOARD_VIEW: '/board/freeBoard/view/:id',
