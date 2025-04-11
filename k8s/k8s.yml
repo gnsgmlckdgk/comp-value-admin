@@ -15,7 +15,7 @@ spec:
         app: comp-value-admin
     spec:
       # 이미지 pull 토큰 설정 가져오기
-      # kubectl create secret docker-registry ghcr-secret ...
+      # kubectl create secret docker-registry 가ghcr-secret ...
       imagePullSecrets:
         - name: ghcr-secret
       containers:
@@ -25,6 +25,13 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 80
+          env:
+            # nginx 환경변수
+            - name: BACKEND_HOST
+              value: comp-value-service.comp-value.svc.cluster.local
+            - name: BACKEND_PORT
+              value: "80"
+
 ---
 apiVersion: v1
 kind: Service
