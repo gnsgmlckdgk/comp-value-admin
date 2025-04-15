@@ -46,7 +46,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: gnsgmlckdgk/comp-value-admin
-  VERSION: 0.0.1
+  VERSION: latest
 
 jobs:
   build:
