@@ -10,6 +10,7 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bundle.js',
+        publicPath: './', // 이게 중요함! 반드시 상대 경로로
     },
     module: {
         rules: [
