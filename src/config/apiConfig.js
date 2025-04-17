@@ -24,6 +24,11 @@ export const API_CONFIG = {
     BASE_URL_LOCAL: 'http://localhost:18080',
     BASE_URL: process.env.REACT_APP_API_BASE_URL,
 
+    //@ 테스트, `${GET_HOST()}${API_CONFIG.TEST.CHECK.URL}`
+    TEST: {
+        CHECK: { URL: '/dart/main/check', METHOD: 'GET' }
+    },
+
     //@ 트레이드, `${GET_HOST()}${API_CONFIG.TRADE.NOTICE.URL}`;
     TRADE: {
         //# 기업주요사항

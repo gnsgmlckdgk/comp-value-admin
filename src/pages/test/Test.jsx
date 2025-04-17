@@ -9,8 +9,8 @@ const healthCheckHandler = async (e) => {
     console.log("HealthCheck Start");
 
     // const sendUrl = "http://localhost:18080/dart/main/check";
-    const sendUrl = `${GET_HOST()}${API_CONFIG.TRADE.COMPVALUE.URL}`;
-    const { data, error } = await send(sendUrl, {}, "GET");
+    const sendUrl = `${GET_HOST()}${API_CONFIG.TEST.CHECK.URL}`;
+    const { data, error } = await send(sendUrl, {}, `${API_CONFIG.TEST.CHECK.METHOD}`);
 
     console.log("HealthCheck Result", data, error);
 }
